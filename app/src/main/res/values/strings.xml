@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Message Schedular</string>
+    <string name="schedule_page_name">Schedule A Message</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string-array name="repeat_array">
+        <item>Does not repeat</item>
+        <item>Repeats</item>
+    </string-array>
+    <string-array name="date_array">
+        <item>day</item>
+        <item>week</item>
+        <item>month</item>
+        <item>year</item>
+    </string-array>
+    <string-array name="date_plural_array">
+        <item>days</item>
+        <item>weeks</item>
+        <item>months</item>
+        <item>years</item>
+    </string-array>
+</resources>

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="300dp"
+    android:layout_marginTop="5dp"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:textSize="20dp"
+        android:layout_marginLeft="20dp"
+        android:text="Reoccurence"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="20dp"
+        android:text="Repeat every"
+        android:textColor="#000000"
+        tools:layout_editor_absoluteX="31dp"
+        tools:layout_editor_absoluteY="60dp" />
+
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginStart="14dp"
+        android:layout_toEndOf="@+id/textView2"
+        android:layout_marginTop="15dp"
+        android:ems="10"
+        android:text="1"
+        android:textColor="#000000"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:inputType="number" />
+
+        <Spinner
+            android:id="@+id/group1"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/textView2"
+            android:layout_marginTop="23dp"
+            android:layout_toEndOf="@+id/editText"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:checkedButton="@id/weekRadioButtonId"
+            android:orientation="horizontal" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:textColor="#000000"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_below="@+id/editText"
+        android:layout_marginTop="15dp"
+        android:text="Repeat on" />
+    <Spinner
+        android:visibility="gone"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:id="@+id/repeatId"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="20dp"
+        android:layout_below="@+id/group1"
+        android:popupBackground="#ffffff"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/item"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/group1"
+        android:orientation="horizontal"
+        >
+        <RadioButton
+            android:id="@+id/sunId"
+            android:button="@null"
+            android:layout_width="wrap_content"
+            android:text="Sun"
+            android:textColor="#000000"
+            android:drawableTint="@android:color/holo_red_light"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:clickable="true"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/monId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:button="@null"
+            android:clickable="true"
+            android:drawableTint="@android:color/holo_red_light"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:text="Mon"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:textColor="#000000" />
+
+        <RadioButton
+            android:id="@+id/tueId"
+            android:button="@null"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:text="Tue"
+            android:textColor="#000000"
+            android:clickable="true"
+            android:drawableTint="@android:color/holo_red_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_marginLeft="2dp" />
+        <RadioButton
+            android:id="@+id/wedId"
+            android:layout_width="wrap_content"
+            android:button="@null"
+            android:textColor="#000000"
+            android:drawableTint="@android:color/holo_red_light"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:text="Wed"
+            android:clickable="true"
+            android:layout_marginLeft="2dp"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/thuId"
+            android:layout_width="wrap_content"
+            android:button="@null"
+            android:textColor="#000000"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:layout_marginLeft="2dp"
+            android:text="Thu"
+            android:drawableTint="@android:color/holo_red_light"
+            android:clickable="true"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/friId"
+            android:layout_width="wrap_content"
+            android:button="@null"
+            android:textColor="#000000"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:layout_marginLeft="2dp"
+            android:text="Fri"
+            android:drawableTint="@android:color/holo_red_light"
+            android:clickable="true"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_height="wrap_content" />
+        <RadioButton
+            android:id="@+id/satId"
+            android:layout_width="wrap_content"
+            android:button="@null"
+            android:textColor="#000000"
+            android:drawableTop="?android:attr/listChoiceIndicatorSingle"
+            android:layout_marginLeft="2dp"
+            android:clickable="true"
+            android:drawableTint="@android:color/holo_red_light"
+            android:text="Sat"
+            android:onClick="handleDayOfTheWeekClickEvent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:textColor="#000000"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Ends" />
+
+    <RadioGroup
+        android:id="@+id/nevAfter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView3"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="15dp"
+        android:layout_alignStart="@+id/textView2"
+        android:checkedButton="@id/neverRadioButtonId"
+        >
+
+        <RadioButton
+            android:id="@+id/neverRadioButtonId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:buttonTint="@android:color/holo_red_light"
+            android:onClick="setIntervalType"
+            android:text="Never" />
+
+        <RadioButton
+            android:id="@+id/afterRadioButtonId"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textColor="#000000"
+            android:layout_height="wrap_content"
+            android:buttonTint="@android:color/holo_red_light"
+            android:layout_alignStart="@+id/radioButton4"
+            android:layout_below="@+id/radioButton4"
+            android:onClick="setIntervalType"
+            android:text="After" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-43dp">
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="90dp"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="5"
+            android:inputType="number"
+            android:textColor="#000000"
+            android:textColorHint="#454545" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="7dp"
+            android:text="occurences"
+            android:textColor="#000000" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_below="@id/textView4"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
+        >
+
+        <Button
+            android:id="@+id/cancel"
+
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="82dp"
+            android:layout_marginTop="20dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="Cancel"
+            android:onClick="cancelDialog"
+            android:background="#ffffff"
+            android:textColor="#000" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="82dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_marginTop="20dp"
+            android:background="#ffffff"
+            android:text="Save"
+            android:onClick="onSave"
+            android:textColor="@android:color/holo_red_light" />
+    </LinearLayout>
+
+</LinearLayout>

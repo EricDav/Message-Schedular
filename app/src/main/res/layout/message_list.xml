@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    >
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/userImageId"
+        android:layout_width="35dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/messageTitle"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/circle"
+        app:srcCompat="@drawable/ic_people_black_24dp" />
+
+    <TextView
+        android:id="@+id/messageTitle"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/date"
+        android:layout_marginStart="14dp"
+        android:layout_toEndOf="@+id/userImageId"
+        android:fontFamily="monospace"
+        android:singleLine="true"
+        android:text="Home Alone"
+        android:textColor="#000"
+        android:textSize="17dp" />
+
+    <TextView
+        android:id="@+id/messageSummary"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="35dp"
+        android:layout_alignStart="@+id/messageTitle"
+        android:ellipsize="end"
+        android:fontFamily="serif"
+        android:singleLine="true"
+        android:text="MessageSummaryfhghjhdfgjfdjgjsdjfghjgffhdgfdhgfdhgddhfsghfjgsafghsgahgsahgfhsgfhdghsajgfdhsgfgdhfgdshdgfhsd"
+        android:textSize="13dp" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="5dp"
+        android:textSize="15dp"
+        android:textColor="#3F51B5"
+        android:text="March 26, 2018" />
+
+    <TextView
+        android:id="@+id/messageStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:textStyle="italic"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="18dp"
+        android:layout_alignTop="@+id/messageSummary"
+        android:text="pending" />
+
+
+</RelativeLayout>
