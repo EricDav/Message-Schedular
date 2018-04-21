@@ -21,7 +21,6 @@ public class BootReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SmsManager smgr = SmsManager.getDefault();
-        smgr.sendTextMessage("2348133214485",null,"I am justing testing if the application is using an airtime or not.",null,null);
 
         Toast toast = Toast.makeText(context, "I am just testing from boot reciever", Toast.LENGTH_SHORT);
         toast.show();

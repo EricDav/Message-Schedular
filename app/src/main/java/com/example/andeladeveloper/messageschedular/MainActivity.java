@@ -5,11 +5,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 
@@ -29,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -51,7 +54,8 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView recyclerView;
     private ScheduleMessageAdapter messageAdapter;
-    private List<ScheduledMessage> scheduledMessages;
+    private List<ScheduledMessage> allScheduledMessages;
+    private List<ScheduledMessage> displayedMessages;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -63,10 +67,6 @@ public class MainActivity extends AppCompatActivity
         getPermissionToReadUserContacts();
 
         Intent intent = getIntent();
-        if (intent.getStringExtra("test") != null) {
-            Log.d("FREE", intent.getStringExtra("test"));
-            Toast.makeText(this, intent.getStringExtra("test") , Toast.LENGTH_SHORT).show();
-        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
         }
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,19 +107,33 @@ public class MainActivity extends AppCompatActivity
 
         db = new DatabaseHelper(this);
         // db.dropTable();
-        getAllScheduledMessages();
+        assignAllScheduledMessages();
 
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        messageAdapter = new ScheduleMessageAdapter(scheduledMessages);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        recyclerView.setAdapter(messageAdapter);
+        setMessagesOnActivity();
 
     }
+
+
+    /**
+     * Set the appropriate messages on the activity e.g pending, delivered or all messages.
+     *
+     * @return void
+     */
+    private void setMessagesOnActivity() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String lastViewedMessage = sharedPref.getString("messageCategory", "All");
+        Log.d("LAST_MESSAGE_CATEGORY", lastViewedMessage);
+
+        if (lastViewedMessage.equals("Delivered")) {
+            setDeliveredMessages();
+        } else if (lastViewedMessage.equals("Pending")) {
+            setPendingMessages();
+        } else {
+            setAllMessages();
+        }
+    }
+
     public void startAlarm() {
         Intent intentAlarm = new Intent(this, ScheduleMessage.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), REQUEST_CODE, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -174,12 +187,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id ==  R.id.nav_gallery) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
+        if (id ==  R.id.all) {
+            setAllMessages();
+        } else if (id == R.id.pending) {
+            setPendingMessages();
+        } else if (id == R.id.delivered) {
+            setDeliveredMessages();
         } else if (id == R.id.nav_manage) {
 
         }
@@ -189,11 +202,89 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void getAllScheduledMessages() {
-       scheduledMessages =  db.getAllScheduledMessages();
-       // scheduledMessages.notify();
-
+    public void assignAllScheduledMessages() {
+       allScheduledMessages =  db.getAllScheduledMessages();
     }
 
+    /**
+     * Set the main activity to display delivered messages
+     *
+     * @return void
+     */
+    public void setDeliveredMessages() {
+        setTitle("Delivered Messages");
 
+        List<ScheduledMessage> deliveredMessages = new ArrayList<>();
+
+        for (int i = 0; i < allScheduledMessages.size() -1; i++ ) {
+
+            if (allScheduledMessages.get(i).getStatus() == 2) {
+                deliveredMessages.add(allScheduledMessages.get(i));
+            }
+        }
+
+        setLastViewedMessageCategory("Delivered");
+        setAdapter(deliveredMessages);
+    }
+
+    /**
+     * Set the main activity to display pending messages
+     *
+     * @return void
+     */
+    public void setPendingMessages() {
+        setTitle("Pending Messages");
+
+        List<ScheduledMessage> pendingMessages = new ArrayList<>();
+
+        for (int i = 0; i < allScheduledMessages.size() -1; i++ ) {
+
+            if (allScheduledMessages.get(i).getStatus() == 0) {
+                pendingMessages.add(allScheduledMessages.get(i));
+            }
+        }
+
+        setLastViewedMessageCategory("Pending");
+        setAdapter(pendingMessages);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String lastViewedMessage = sharedPref.getString("messageCategory", "All");
+        Log.d("PENDING_CATEGORY", lastViewedMessage);
+    }
+
+    public void setAllMessages() {
+        setTitle("All Messages");
+        setLastViewedMessageCategory("All");
+        setAdapter(allScheduledMessages);
+    }
+
+    /**
+     * It sets the adapter with the required messages.
+     *
+     * @param messages The scheduled messgaes to display in the main activity
+     */
+    public void setAdapter(List<ScheduledMessage> messages) {
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        messageAdapter = new ScheduleMessageAdapter(messages);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.setAdapter(messageAdapter);
+    }
+
+    /**
+     * It saved the last viewed message category.
+     *
+     * @param messageCategory The last message category. e.g pending, delivered or canceled
+     *
+     * @return void
+     */
+    public void setLastViewedMessageCategory(String messageCategory) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("messageCategory", messageCategory);
+        editor.commit();
+    }
 }

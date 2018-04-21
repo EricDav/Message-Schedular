@@ -62,7 +62,11 @@ public class DatePickerFragment extends DialogFragment
         int todayMonth = today.get(Calendar.MONTH);
         int todayDay = today.get(Calendar.DAY_OF_MONTH);
 
-        if (year >= todayYear  && month >= todayMonth && day >= todayDay) {
+        if (year > todayYear) {
+            return true;
+        } else if (year == todayYear && month > todayMonth) {
+            return true;
+        } else if (year == todayYear && month == todayMonth && day >= todayDay) {
             return true;
         }
         return false;

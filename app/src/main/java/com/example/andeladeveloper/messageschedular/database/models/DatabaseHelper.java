@@ -170,6 +170,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return scheduledMessage;
     }
 
+//    public List<ScheduledMessage>getDeliveredMessages() {
+//        List<ScheduledMessage> scheduledMessages = new ArrayList<>();
+//
+//        String selectQuery = "SELECT  * FROM " + ScheduledMessage.TABLE_NAME + " WHERE " + ScheduledMessage.COLUMN_STATUS +
+//                " = 2" + " ORDER BY " + ScheduledMessage.COLUMN_TIMESTAMP + " DESC";
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        Cursor cursor = db.rawQuery(selectQuery, null);
+//
+//        if (cursor.moveToFirst()) {
+//            do {
+//                ScheduledMessage scheduledMessage = new ScheduledMessage();
+//                scheduledMessage.setId(cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_ID)));
+//                scheduledMessage.setMessage(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_MESSAGE)));
+//                scheduledMessage.setInterval(cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_INTERVAL)));
+//                scheduledMessage.setOccurrence(cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_OCCURRENCE)));
+//                scheduledMessage.setPhoneNumber(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NUMBER)));
+//                scheduledMessage.setDuration(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_DURATION)));
+//                scheduledMessage.setTime(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIME)));
+//                scheduledMessage.setStatus(cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_STATUS)));
+//                scheduledMessage.setStartTime(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_START_TIME)));
+//                scheduledMessage.setRemainingOccurrence(cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_REMAINING_OCCURRENCE)));
+//                scheduledMessage.setTimestamp(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIMESTAMP)));
+//                scheduledMessage.setPhoneName(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NAME)));
+//                scheduledMessage.setPhonePhotoUri(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_PHOTO_URI)));
+//
+//                scheduledMessages.add(scheduledMessage);
+//            } while (cursor.moveToNext());
+//        }
+//
+//        // close db connection
+//        db.close();
+//
+//        return scheduledMessages;
+//    }
+
     public List<ScheduledMessage>getAllScheduledMessages() {
         List<ScheduledMessage> scheduledMessages = new ArrayList<>();
         // Select All Query
