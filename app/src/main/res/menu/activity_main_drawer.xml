@@ -5,19 +5,15 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/scheduledMessages"
+            android:id="@+id/all"
             android:icon="@drawable/ic_library_books_black_24dp"
             android:title="All Messages"/>
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/pending"
             android:icon="@drawable/ic_more_horiz_black_24dp"
             android:title="Pending Messages" />
         <item
-            android:id="@+id/nav_galler"
-            android:icon="@drawable/ic_more_black_24dp"
-            android:title="Messages in progress" />
-        <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/delivered"
             android:icon="@drawable/ic_done_all_black_24dp"
             android:title="Delivered Messages" />
         <item

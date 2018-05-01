@@ -7,8 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.andeladeveloper.messageschedular.MainActivity;
-import com.example.andeladeveloper.messageschedular.R;
+import com.example.andeladeveloper.messageschedular.Activities.MainActivity;
 
 /**
  * Created by andeladeveloper on 11/04/2018.

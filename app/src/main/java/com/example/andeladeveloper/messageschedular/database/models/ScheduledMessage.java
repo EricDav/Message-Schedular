@@ -18,6 +18,7 @@ public class ScheduledMessage {
     public static final String COLUMN_PHONE_PHOTO_URI = "phonePhotoUri";
     public static final String COLUMN_DURATION = "duration";
     public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_IS_STOPPED = "isStopped";
     public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_REMAINING_OCCURRENCE = "remainingOccurrence";
 
@@ -34,6 +35,7 @@ public class ScheduledMessage {
     private String timestamp;
     private String phoneName;
     private String phonePhotoUri;
+    private Integer isStopped;
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -48,11 +50,12 @@ public class ScheduledMessage {
                     + COLUMN_OCCURRENCE + " INTEGER DEFAULT 0,"
                     + COLUMN_START_TIME + " TEXT,"
                     + COLUMN_DURATION + " TEXT,"
+                    + COLUMN_IS_STOPPED + " INTEGER,"
                     + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
                     + COLUMN_TIME + " TEXT"
                     + ")";
     public ScheduledMessage(Integer id, String message, String phoneNumber, String phoneName, String phonePhotoUri, String time, String startTime,
-                            Integer interval, Integer occurrence, String duration, Integer status, Integer remainingOccurrence ) {
+                            Integer interval, Integer occurrence, String duration, Integer status, Integer remainingOccurrence, Integer isStopped ) {
         this.message = message;
         this.phoneNumber = phoneNumber;
         this.time = time;
@@ -65,6 +68,7 @@ public class ScheduledMessage {
         this.status = status;
         this.phoneName = phoneName;
         this.phonePhotoUri = phonePhotoUri;
+        this.isStopped = isStopped;
     }
 
     public ScheduledMessage() {}
@@ -135,6 +139,10 @@ public class ScheduledMessage {
         this.startTime = startTime;
     }
 
+    public void setIsStopped(Integer isStopped) {
+        this.isStopped = isStopped;
+    }
+
     public void setRemainingOccurrence(Integer remainingOccurrence) {
         this.remainingOccurrence = remainingOccurrence;
     }
@@ -155,11 +163,18 @@ public class ScheduledMessage {
         if (status == 0) {
             return "Pending";
         } else if (status == 1) {
-            return "In progress";
+            return "Stopped";
+        } else if (status == 2) {
+            return "Processed";
         }
-        return "Delivered";
+        else  {
+            return "Canceled";
+        }
     }
 
+    public Integer getIsStopped() {
+        return isStopped;
+    }
 
     public void setDuration(String duration) {
         this.duration = duration;

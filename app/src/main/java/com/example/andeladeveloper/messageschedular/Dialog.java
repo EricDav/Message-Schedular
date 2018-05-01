@@ -59,7 +59,7 @@ public class Dialog extends AppCompatActivity implements
         spinner.setOnItemSelectedListener(this);
 
         Intent intent = getIntent();
-        date =    intent.getStringExtra("date");
+        date  =    intent.getStringExtra("date");
         displayWeekdays();
 
         editText.addTextChangedListener(new TextWatcher() {
@@ -336,6 +336,7 @@ public class Dialog extends AppCompatActivity implements
         editor.putInt("interval", interval);
         editor.putString("duration", duration);
         editor.putBoolean("isSave", true);
+
         if (duration == "week") {
             String daysInterval = "";
             for (int i = 0; i < checkedDays.size(); i++) {
@@ -348,11 +349,10 @@ public class Dialog extends AppCompatActivity implements
         } else if (duration == "year") {
             editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, "", "Yearly", "years"));
         } else {
-            Log.d("MONTHLY", selectedMonthlyOccurence);
             editor.putString("intervaldays", selectedMonthlyOccurence);
             editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, " on " + getMonthlyTime(selectedMonthlyOccurence.split(" ")), "Monthly", "months"));
         }
-        editor.commit();
+        editor.apply();
         finish();
     }
     public String getReoccurenceSummary(Integer occurence, Integer interval, String time, String adverbType, String pluralType) {

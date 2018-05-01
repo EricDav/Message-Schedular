@@ -1,4 +1,4 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Fragments;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -14,6 +14,8 @@ import java.util.Calendar;
 
 import android.app.DialogFragment;
 import android.app.TimePickerDialog.OnTimeSetListener;
+
+import com.example.andeladeveloper.messageschedular.R;
 
 /**
  * Created by andeladeveloper on 02/04/2018.
@@ -38,7 +40,7 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt("hour", hourOfDay);
         editor.putInt("minute", minute);
-        editor.commit();
+        editor.apply();
         // Do something with the time chosen by the user
         TextView tv = (TextView) getActivity().findViewById(R.id.timeId);
         tv.setText(formatTime(hourOfDay, minute));

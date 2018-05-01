@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    tools:context="com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity">
+    <ScrollView
+        android:layout_width="300dp"
+        android:paddingBottom="50dp"
+        android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/dialogMainId"
+        android:layout_marginTop="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="26dp"
+        tools:layout_editor_absoluteY="0dp">
+    </LinearLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/cancel"
+        style="?android:attr/borderlessButtonStyle"
+        android:textSize="14sp"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="#ffffff"
+        android:text="CLOSE"
+        android:onClick="closeDialog"
+        android:textStyle="bold"
+        android:textAlignment="textEnd"
+        android:textColor="@android:color/holo_red_light" />
+</RelativeLayout>
