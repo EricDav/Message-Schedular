@@ -76,7 +76,7 @@ public class ScheduleMessageAdapter extends RecyclerView.Adapter<ScheduleMessage
 
     }
 
-    public String getColorCode(String statusName) {
+    public static String getColorCode(String statusName) {
         if (statusName.equals("Cancelled")) {
            return "FF0000";
         } else if (statusName.equals("Pending")) {

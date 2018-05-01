@@ -12,44 +12,33 @@
     >
 
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/userImageId"
-        android:layout_width="35dp"
-        android:layout_height="50dp"
+    <TextView
+        android:id="@+id/positionId"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/messageTitle"
-        android:layout_marginStart="10dp"
-        android:background="@drawable/circle"
-       />
-
-    <TextView
-        android:id="@+id/messageTitle"
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/date"
-        android:layout_marginStart="14dp"
-        android:layout_toEndOf="@+id/userImageId"
-        android:fontFamily="monospace"
-        android:singleLine="true"
-        android:text="Home Alone"
+        android:layout_alignParentTop="true"
         android:textColor="#000"
-        android:textSize="17dp" />
+        android:text="#1"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="14dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/messageSummary"
+        android:id="@+id/messageId"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_marginTop="35dp"
-        android:layout_alignStart="@+id/messageTitle"
+        android:layout_alignStart="@+id/positionId"
         android:ellipsize="end"
         android:fontFamily="serif"
         android:singleLine="true"
         android:text="MessageSummaryfhghjhdfgjfdjgjsdjfghjgffhdgfdhgfdhgddhfsghfjgsafghsgahgsahgfhsgfhdghsajgfdhsgfgdhfgdshdgfhsd"
-        android:textSize="13dp" />
+        android:textSize="13sp" />
 
     <TextView
-        android:id="@+id/date"
+        android:id="@+id/dateId"
         android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,7 +50,7 @@
         android:text="March 26, 2018" />
 
     <TextView
-        android:id="@+id/messageStatus"
+        android:id="@+id/messageStatusId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#000"
@@ -69,8 +58,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="5dp"
         android:layout_marginTop="18dp"
-        android:layout_alignTop="@+id/messageSummary"
+        android:layout_alignTop="@+id/messageId"
         android:text="pending" />
-
-
 </RelativeLayout>

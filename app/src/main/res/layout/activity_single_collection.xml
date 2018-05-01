@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="320dp"
+    android:layout_height="match_parent"
+    tools:context="com.example.andeladeveloper.messageschedular.SingleCollectionActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/messageCollectionTitleId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
+                    android:text="Message:  "
+                    android:textColor="#000"
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/editImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:scaleType="fitEnd"
+                    android:onClick="editMessage"
+                    android:src="@drawable/ic_edit_black_24dp" />
+                <ImageView
+                    android:id="@+id/saveMessage"
+                    android:visibility="gone"
+                    android:onClick="saveMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:scaleType="fitEnd"
+                    android:src="@drawable/ic_save_black_24dp" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/messageCollection"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="16dp"
+                android:textSize="15dp"
+                android:textColor="#999999"
+                android:fontFamily="monospace"
+                android:layout_height="match_parent"
+                android:text="Message"
+                />
+            <EditText
+                android:visibility="gone"
+                android:id="@+id/messageEdit"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="16dp"
+                android:textSize="15dp"
+                android:textColor="#999999"
+                android:fontFamily="monospace"
+                android:layout_height="wrap_content"
+                android:text="Message"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/statusHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textSize="16dp"
+                    android:textColor="#000"
+                    android:textStyle="bold"
+                    android:text="Status: "
+                    />
+                <TextView
+                    android:id="@+id/statusCollectionValueId"
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textSize="15dp"
+                    android:textColor="#999999"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif"
+                    android:text="20 failed, 20 sent 20 delivered"
+                    />
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/viewMoreCollection"
+                    android:singleLine="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="13sp"
+                    android:layout_marginTop="22dp"
+                    android:onClick="viewMore"
+                    android:text="View full reports"
+                    android:layout_marginRight="0dp"
+                    android:textColor="#000080"
+                    android:textStyle="italic"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="50dp"
+                android:layout_marginLeft="16dp"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/cancel"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:textSize="14sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:background="#ffffff"
+                    android:text="CLOSE"
+                    android:onClick="closeDialog"
+                    android:textAlignment="textEnd"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/holo_red_light" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>

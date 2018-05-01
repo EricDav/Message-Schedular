@@ -1,13 +1,9 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.app.DialogFragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -19,19 +15,18 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.andeladeveloper.messageschedular.Fragments.DatePickerFragment;
+import com.example.andeladeveloper.messageschedular.Dialog;
+import com.example.andeladeveloper.messageschedular.R;
+import com.example.andeladeveloper.messageschedular.Fragments.TimePickerFragment;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
-import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
 import com.example.andeladeveloper.messageschedular.dialogs.ConfirmationDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,6 +145,7 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
 
             interval = sharedPref.getInt("interval", 0);
             occurence = sharedPref.getInt("occurence", 0);
+
             duration = sharedPref.getString("duration", "week");
             daysToRepeat = sharedPref.getString("intervaldays", "");
             sharedPref.edit().putBoolean("isSave", false);
@@ -268,10 +264,10 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
                 String[] phoneNumberDetails = getPhoneNumberDetails(phoneNumberText.getText().toString()).split(",,,");
 
                 Long value = isReoccur ? db.insertMessage(userValidity.get("message"), phoneNumberDetails[0],
-                        time, time, occurence, interval, duration + "," + daysToRepeat,  occurence -1, phoneNumberDetails[1], phoneNumberDetails[2]) :
+                        time, time, occurence, interval, duration + "," + daysToRepeat,  occurence -1, phoneNumberDetails[1], phoneNumberDetails[2], 0) :
 
                         db.insertMessage(userValidity.get("message"), phoneNumberDetails[0], time, time,
-                                0, 0, "",  0, phoneNumberDetails[1], phoneNumberDetails[2]);
+                                0, 0, "",  0, phoneNumberDetails[1], phoneNumberDetails[2], 0);
 
 
                 if (value > 0) {

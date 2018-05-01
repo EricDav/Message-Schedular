@@ -1,14 +1,13 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,13 +30,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
 
+import com.example.andeladeveloper.messageschedular.DeliveredMessageBroadcast;
+import com.example.andeladeveloper.messageschedular.R;
+import com.example.andeladeveloper.messageschedular.RecyclerTouchListener;
+import com.example.andeladeveloper.messageschedular.ScheduleMessage;
+import com.example.andeladeveloper.messageschedular.SentMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
+import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
 
 import java.util.ArrayList;
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private ScheduleMessageAdapter messageAdapter;
     private List<ScheduledMessage> allScheduledMessages;
-    private List<ScheduledMessage> displayedMessages;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -96,7 +96,14 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //checking if alram is working with pendingIntent
+        SentMessageBroadcast smsSentReceiver = new SentMessageBroadcast();
+        DeliveredMessageBroadcast smsDeliveredReceiver = new DeliveredMessageBroadcast();
+
+
+        registerReceiver(smsSentReceiver, new IntentFilter("SMS_SENT"));
+        registerReceiver(smsDeliveredReceiver, new IntentFilter("SMS_DELIVERED"));
+
+        //checking if alarm is working with pendingIntent
         Intent checkIntent = new Intent(this, ScheduleMessage.class);//the same as up
         intent.setAction("SEND_MESSAGE");//the same as up
         boolean isWorking = (PendingIntent.getBroadcast(this, 1001, checkIntent, PendingIntent.FLAG_NO_CREATE) != null);
@@ -105,11 +112,54 @@ public class MainActivity extends AppCompatActivity
             startAlarm();
         }
 
-        db = new DatabaseHelper(this);
-        // db.dropTable();
+         db = new DatabaseHelper(this);
+
+      //db.dropTable();
+
+//        List<MessageCollections> messageCollections = db.getAllMessageCollections();
+//
+//        for (int i =0; i < messageCollections.size(); i++) {
+//            Log.d("COLL_ID", messageCollections.get(i).getId().toString());
+//            Log.d("COLL_MESSAGE", messageCollections.get(i).getMessage().toString());
+//            Log.d("COLL_POSITION", messageCollections.get(i).getPosition().toString());
+//            Log.d("COLL_TIME", messageCollections.get(i).getTime().toString());
+//            Log.d("COLL_STATUS", messageCollections.get(i).getStatus().toString());
+//            Log.d("COLL_COLLECTION_ID", messageCollections.get(i).getCollectionId().toString());
+//
+//
+//        }
+
         assignAllScheduledMessages();
 
         setMessagesOnActivity();
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                ScheduledMessage scheduledMessage = allScheduledMessages.get(position);
+
+                Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
+                intent.putExtra("message", scheduledMessage.getMessage());
+                intent.putExtra("names", scheduledMessage.getPhoneName());
+                intent.putExtra("time", scheduledMessage.getStartTime());
+                intent.putExtra("id", scheduledMessage.getId());
+                intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
+                intent.putExtra("occurrence", scheduledMessage.getOccurrence());
+                intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
+                intent.putExtra("interval", scheduledMessage.getInterval());
+                intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
+                intent.putExtra("status", scheduledMessage.getStatus());
+                intent.putExtra("createdAt", scheduledMessage.getTimestamp());
+                intent.putExtra("duration", scheduledMessage.getDuration());
+
+                startActivity(intent);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
 
     }
 
@@ -285,6 +335,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("messageCategory", messageCategory);
-        editor.commit();
+        editor.apply();
     }
 }
