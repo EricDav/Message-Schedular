@@ -6,6 +6,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="sort_by">Sort By</string>
+    <string name="sort_newest">Newest to Oldest</string>
+    <string name="sort_oldest">Oldest to Newest</string>
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Repeats</item>

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by andeladeveloper on 17/04/2018.
+ * Created by David on 17/04/2018.
  */
 
 public class ScheduleMessageAdapter extends RecyclerView.Adapter<ScheduleMessageAdapter.MyViewHolder> {
@@ -55,9 +55,11 @@ public class ScheduleMessageAdapter extends RecyclerView.Adapter<ScheduleMessage
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         ScheduledMessage scheduledMessage = scheduledMessages.get(position);
-        String statusName = scheduledMessage.getStatusName();
+        Integer occurrence = scheduledMessage.getOccurrence();
+
+        String statusName = occurrence == 0 ? "Single" : "Collection" + "(" + occurrence.toString() + ")";
         holder.status.setText(statusName);
-        int color = Integer.parseInt(getColorCode(statusName), 16)+0xFF000000;
+        int color = Integer.parseInt("000000", 16)+0xFF000000;
         holder.status.setTextColor(color);
         holder.title.setText(scheduledMessage.getPhoneName());
         holder.messageSummary.setText(scheduledMessage.getMessage());
@@ -74,15 +76,6 @@ public class ScheduleMessageAdapter extends RecyclerView.Adapter<ScheduleMessage
         }
 
 
-    }
-
-    public static String getColorCode(String statusName) {
-        if (statusName.equals("Cancelled")) {
-           return "FF0000";
-        } else if (statusName.equals("Pending")) {
-            return "DAA520";
-        }
-        return "008000";
     }
 
     public int getImageSrc(ScheduledMessage scheduledMessage) {

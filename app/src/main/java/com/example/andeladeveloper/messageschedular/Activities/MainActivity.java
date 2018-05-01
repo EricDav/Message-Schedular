@@ -30,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.example.andeladeveloper.messageschedular.DeliveredMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.R;
@@ -37,6 +38,7 @@ import com.example.andeladeveloper.messageschedular.RecyclerTouchListener;
 import com.example.andeladeveloper.messageschedular.ScheduleMessage;
 import com.example.andeladeveloper.messageschedular.SentMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
+import com.example.andeladeveloper.messageschedular.asynctasks.AllScheduledMessagesAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
@@ -51,11 +53,11 @@ public class MainActivity extends AppCompatActivity
     private static final int  SEND_SMS_PERMISSION_REQUEST = 1;
     private static final int REQUEST_READ_PHONE_STATE = 1;
     private static final int READ_CONTACTS_PERMISSION_REQUEST = 1;
-    private DatabaseHelper db;
 
     private RecyclerView recyclerView;
+    private TextView emptyTextView;
     private ScheduleMessageAdapter messageAdapter;
-    private List<ScheduledMessage> allScheduledMessages;
+    private List<ScheduledMessage> scheduledMessages;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         getPermissionToReadUserContacts();
 
         Intent intent = getIntent();
@@ -99,7 +102,6 @@ public class MainActivity extends AppCompatActivity
         SentMessageBroadcast smsSentReceiver = new SentMessageBroadcast();
         DeliveredMessageBroadcast smsDeliveredReceiver = new DeliveredMessageBroadcast();
 
-
         registerReceiver(smsSentReceiver, new IntentFilter("SMS_SENT"));
         registerReceiver(smsDeliveredReceiver, new IntentFilter("SMS_DELIVERED"));
 
@@ -111,32 +113,14 @@ public class MainActivity extends AppCompatActivity
             Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
             startAlarm();
         }
-
-         db = new DatabaseHelper(this);
-
       //db.dropTable();
 
-//        List<MessageCollections> messageCollections = db.getAllMessageCollections();
-//
-//        for (int i =0; i < messageCollections.size(); i++) {
-//            Log.d("COLL_ID", messageCollections.get(i).getId().toString());
-//            Log.d("COLL_MESSAGE", messageCollections.get(i).getMessage().toString());
-//            Log.d("COLL_POSITION", messageCollections.get(i).getPosition().toString());
-//            Log.d("COLL_TIME", messageCollections.get(i).getTime().toString());
-//            Log.d("COLL_STATUS", messageCollections.get(i).getStatus().toString());
-//            Log.d("COLL_COLLECTION_ID", messageCollections.get(i).getCollectionId().toString());
-//
-//
-//        }
-
-        assignAllScheduledMessages();
-
-        setMessagesOnActivity();
-
+        setRecyclerViewLayout();
+        emptyTextView = findViewById(R.id.emptyMainTextId);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                ScheduledMessage scheduledMessage = allScheduledMessages.get(position);
+                ScheduledMessage scheduledMessage = scheduledMessages.get(position);
 
                 Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
                 intent.putExtra("message", scheduledMessage.getMessage());
@@ -161,6 +145,7 @@ public class MainActivity extends AppCompatActivity
             }
         }));
 
+        setMessagesOnActivity("DESC");
     }
 
 
@@ -169,19 +154,23 @@ public class MainActivity extends AppCompatActivity
      *
      * @return void
      */
-    private void setMessagesOnActivity() {
+    private void setMessagesOnActivity(String sortType) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         String lastViewedMessage = sharedPref.getString("messageCategory", "All");
         Log.d("LAST_MESSAGE_CATEGORY", lastViewedMessage);
 
-        if (lastViewedMessage.equals("Delivered")) {
-            setDeliveredMessages();
-        } else if (lastViewedMessage.equals("Pending")) {
-            setPendingMessages();
+        if (lastViewedMessage.equals("single")) {
+            setTitle("Non-Reoccurring Messages");
+            new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("single", sortType);
+        } else if (lastViewedMessage.equals("collection")) {
+            setTitle("Reoccurring Messages");
+            new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("collection", sortType);
         } else {
-            setAllMessages();
+            setTitle("All Messages");
+            new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("all", sortType);
         }
+        Log.d("LAST_MESSAGE_CATEGORY", lastViewedMessage);
     }
 
     public void startAlarm() {
@@ -226,6 +215,11 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.sort_oldest) {
+            setMessagesOnActivity("ASC");
+            return true;
+        } else if(id == R.id.sort_newest) {
+            setMessagesOnActivity("DESC");
         }
 
         return super.onOptionsItemSelected(item);
@@ -238,11 +232,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id ==  R.id.all) {
-            setAllMessages();
-        } else if (id == R.id.pending) {
-            setPendingMessages();
-        } else if (id == R.id.delivered) {
-            setDeliveredMessages();
+            setAllMessages("DESC");
+        } else if (id == R.id.reoccurring) {
+            setMessagesCollection("DESC");
+        } else if (id == R.id.non_reoccurring) {
+            setSingleMessages("DESC");
         } else if (id == R.id.nav_manage) {
 
         }
@@ -252,76 +246,46 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void assignAllScheduledMessages() {
-       allScheduledMessages =  db.getAllScheduledMessages();
-    }
-
     /**
      * Set the main activity to display delivered messages
      *
      * @return void
      */
-    public void setDeliveredMessages() {
-        setTitle("Delivered Messages");
-
-        List<ScheduledMessage> deliveredMessages = new ArrayList<>();
-
-        for (int i = 0; i < allScheduledMessages.size() -1; i++ ) {
-
-            if (allScheduledMessages.get(i).getStatus() == 2) {
-                deliveredMessages.add(allScheduledMessages.get(i));
-            }
-        }
-
-        setLastViewedMessageCategory("Delivered");
-        setAdapter(deliveredMessages);
+    public void setMessagesCollection(String sortType) {
+        setTitle("Reoccurring Messages");
+        new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("collection", sortType);
+        setLastViewedMessageCategory("collection");
     }
 
     /**
-     * Set the main activity to display pending messages
+     * Set the main activity to display non-occurring messages.
      *
      * @return void
      */
-    public void setPendingMessages() {
-        setTitle("Pending Messages");
-
-        List<ScheduledMessage> pendingMessages = new ArrayList<>();
-
-        for (int i = 0; i < allScheduledMessages.size() -1; i++ ) {
-
-            if (allScheduledMessages.get(i).getStatus() == 0) {
-                pendingMessages.add(allScheduledMessages.get(i));
-            }
-        }
-
-        setLastViewedMessageCategory("Pending");
-        setAdapter(pendingMessages);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String lastViewedMessage = sharedPref.getString("messageCategory", "All");
-        Log.d("PENDING_CATEGORY", lastViewedMessage);
-    }
-
-    public void setAllMessages() {
-        setTitle("All Messages");
-        setLastViewedMessageCategory("All");
-        setAdapter(allScheduledMessages);
+    public void setSingleMessages(String sortType) {
+        setTitle("Non-Reoccurring Messages");
+        new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("single", sortType);
+        setLastViewedMessageCategory("single");
     }
 
     /**
-     * It sets the adapter with the required messages.
-     *
-     * @param messages The scheduled messgaes to display in the main activity
+     * It sets all the messages on the main activity
      */
-    public void setAdapter(List<ScheduledMessage> messages) {
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        messageAdapter = new ScheduleMessageAdapter(messages);
+    public void setAllMessages(String sortType) {
+        setTitle("All Messages");
+        new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("all", sortType);
+        setLastViewedMessageCategory("all");
+    }
 
+    /**
+     * It sets the Recycler view layouts.
+     */
+    public void setRecyclerViewLayout() {
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
-        recyclerView.setAdapter(messageAdapter);
     }
 
     /**
@@ -336,5 +300,9 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("messageCategory", messageCategory);
         editor.apply();
+    }
+
+    public void setScheduledMessages(List<ScheduledMessage> scheduledMessages) {
+        this.scheduledMessages = scheduledMessages;
     }
 }

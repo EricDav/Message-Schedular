@@ -27,7 +27,7 @@ public class ScheduleMessage extends BroadcastReceiver {
         toast.show();
         DatabaseHelper db = new DatabaseHelper(context);
 
-        List<ScheduledMessage> allMessages = db.getAllScheduledMessages();
+        List<ScheduledMessage> allMessages = db.getAllScheduledMessages("DESC");
 
         Calendar currentTime = Calendar.getInstance();
         Calendar scheduledTime = Calendar.getInstance();

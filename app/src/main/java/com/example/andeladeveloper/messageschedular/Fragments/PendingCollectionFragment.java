@@ -13,15 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.andeladeveloper.messageschedular.Activities.MainActivity;
 import com.example.andeladeveloper.messageschedular.Activities.SingleScheduledMessage;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.RecyclerTouchListener;
-import com.example.andeladeveloper.messageschedular.SingleCollectionActivity;
+import com.example.andeladeveloper.messageschedular.Activities.SingleCollectionActivity;
 import com.example.andeladeveloper.messageschedular.adapters.CollectionMessageAdapter;
-import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
-import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
 
 import java.util.ArrayList;
 import java.util.List;

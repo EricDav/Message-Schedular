@@ -1,4 +1,4 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity;
+import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.UpdateMessageAsyncTask;
 
