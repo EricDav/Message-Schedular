@@ -194,7 +194,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values.put(ScheduledMessage.COLUMN_TIME, time);
 
-        return db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        int update = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        return update;
+
     }
 
     public int updateRemainingOccurrence(Integer remainingOccurrence, Integer id) {
@@ -253,7 +258,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                      );
 
         scheduledMessage.setTimestamp(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIMESTAMP)));
+
         cursor.close();
+        db.close();
+
         return scheduledMessage;
     }
 
@@ -289,6 +297,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 return phoneNumberDetails.get(i).getId();
             }
         }
+
+        db.close();
         return 0;
     }
 
@@ -396,6 +406,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         }
 
+        db.close();
         return messageCollections;
 
     }
@@ -416,6 +427,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int row = db.update(MessageCollections.TABLE_NAME, values,
                 MessageCollections.COLUMN_ID + "=" + id.toString(),null);
+        db.close();
         return row;
     }
 
@@ -443,15 +455,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
 
         }
+        db.close();
 
         return messageCollections;
     }
 
-    public List<ScheduledMessage>getAllScheduledMessages() {
+    /**
+     * It gets all the scheduled messages in the database
+     *
+     * @param sortType the sorting type either DESC or ASC
+     *
+     * @return
+     */
+
+    public List<ScheduledMessage>getAllScheduledMessages(String sortType) {
         List<ScheduledMessage> scheduledMessages = new ArrayList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + ScheduledMessage.TABLE_NAME + " ORDER BY " +
-                ScheduledMessage.COLUMN_TIMESTAMP + " DESC";
+                ScheduledMessage.COLUMN_TIMESTAMP + " " + sortType;
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

@@ -7,7 +7,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import android.widget.TextView;
 import com.example.andeladeveloper.messageschedular.Activities.SingleScheduledMessage;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.RecyclerTouchListener;
-import com.example.andeladeveloper.messageschedular.SingleCollectionActivity;
+import com.example.andeladeveloper.messageschedular.Activities.SingleCollectionActivity;
 import com.example.andeladeveloper.messageschedular.adapters.CollectionMessageAdapter;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 

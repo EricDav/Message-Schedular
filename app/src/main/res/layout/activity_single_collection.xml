@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="320dp"
     android:layout_height="match_parent"
-    tools:context="com.example.andeladeveloper.messageschedular.SingleCollectionActivity">
+    tools:context="com.example.andeladeveloper.messageschedular.Activities.SingleCollectionActivity">
 
     <ScrollView
         android:layout_width="match_parent"

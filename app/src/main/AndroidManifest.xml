@@ -55,7 +55,7 @@
             android:textColor="#000"
             android:theme="@style/Theme.AppCompat.Dialog"/>
         <activity
-            android:name=".SingleCollectionActivity"
+            android:name=".Activities.SingleCollectionActivity"
             android:theme="@style/Theme.AppCompat.Dialog"
             >
 

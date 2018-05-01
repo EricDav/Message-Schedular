@@ -178,7 +178,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
             imageView.setLayoutParams(imageLayoutParams);
             if (photoUri[i].equals("null")) {
                 imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                int imageColor = Integer.parseInt(	"C0C0C0", 16)+0xFF000000;
+                int imageColor = Integer.parseInt(	"FFFFFF", 16)+0xFF000000;
                 imageView.setCircleBackgroundColor(imageColor);
             } else {
                 imageView.setImageURI(Uri.parse(photoUri[i]));

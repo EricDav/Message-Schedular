@@ -9,17 +9,18 @@
             android:icon="@drawable/ic_library_books_black_24dp"
             android:title="All Messages"/>
         <item
-            android:id="@+id/pending"
-            android:icon="@drawable/ic_more_horiz_black_24dp"
-            android:title="Pending Messages" />
+            android:id="@+id/reoccurring"
+            android:icon="@drawable/ic_autorenew_black_24dp"
+            android:title="Reoccurring Messages" />
         <item
-            android:id="@+id/delivered"
-            android:icon="@drawable/ic_done_all_black_24dp"
-            android:title="Delivered Messages" />
+            android:id="@+id/non-reoccurring"
+            android:icon="@drawable/ic_sync_disabled_black_24dp"
+            android:title="Non-Reoccurring Messages" />
         <item
-            android:id="@+id/messages"
-            android:icon="@drawable/ic_assessment_black_24dp"
-            android:title="Message Categories"/>
+            android:id="@+id/notificationId"
+            android:icon="@drawable/ic_notifications_black_24dp"
+            android:actionLayout="@layout/collection"
+            android:title="Notifications" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
