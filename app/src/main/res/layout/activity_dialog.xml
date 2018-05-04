@@ -203,7 +203,7 @@
             android:textColor="#000000"
             android:buttonTint="@android:color/holo_red_light"
             android:onClick="setIntervalType"
-            android:text="Never" />
+            android:text="After 100 occurrences(max)" />
 
         <RadioButton
             android:id="@+id/afterRadioButtonId"

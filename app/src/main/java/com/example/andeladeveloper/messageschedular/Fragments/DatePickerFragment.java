@@ -42,7 +42,7 @@ public class DatePickerFragment extends DialogFragment
         editor.putInt("year", year);
         editor.putInt("month", month);
         editor.putInt("day", day);
-        editor.commit();
+        editor.apply();
 
         if (isValidDate(year, month, day)) {
             String[] monthsOfTheYear = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug","Sep", "Oct", "Nov", "Dec"};

@@ -10,7 +10,8 @@
     <ScrollView
         android:layout_width="300dp"
         android:paddingBottom="50dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
     <LinearLayout
         android:id="@+id/dialogMainId"
         android:layout_marginTop="0dp"

@@ -1,5 +1,6 @@
 package com.example.andeladeveloper.messageschedular.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.andeladeveloper.messageschedular.ContactListActivity;
 import com.example.andeladeveloper.messageschedular.Fragments.DatePickerFragment;
 import com.example.andeladeveloper.messageschedular.Dialog;
 import com.example.andeladeveloper.messageschedular.R;
@@ -40,6 +42,9 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
     Integer interval;
     String duration;
     String daysToRepeat;
+    private String phoneNumbers = "";
+    private String phoneNames = "";
+    private String phonePhotoUris = "";
     private DatabaseHelper db;
     static final int PICK_CONTACT_REQUEST = 1;
     private EditText phoneNumberText;
@@ -61,7 +66,8 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
 
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     if(event.getRawX() >= (phoneNumberText.getRight() - phoneNumberText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        pickContact();
+                        Intent intent = new Intent(ScheduleMessageActivity.this, ContactListActivity.class);
+                        startActivityForResult(intent, 1);
                     }
                 }
                 return false;
@@ -74,7 +80,6 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
             }
         });
 
-        assignContacts();
 
         dateText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,46 +97,20 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == PICK_CONTACT_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-
-                // Get the URI that points to the selected contact
-                Uri contactUri = data.getData();
-
-                String phoneNumber = getPhoneNumber(contactUri);
-
-                String currentText = phoneNumberText.getText().toString();
-                if (currentText.equals("")) {
-                    phoneNumberText.setText(phoneNumber);
-                } else {
-                    phoneNumberText.setText(phoneNumberText.getText().toString() + ", " + phoneNumber);
-                }
-
+        Log.d("INSIDE", "I got inside here bro");
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            if (data.hasExtra("phoneNumbers")) {
+                phoneNumbers = data.getStringExtra("phoneNumbers");
+                phoneNames = data.getStringExtra("phoneNames");
+                phonePhotoUris = data.getStringExtra("phonePhotoUris");
+                phoneNumberText.setText(phoneNumbers);
             }
-        }
-    }
-
-    private void pickContact() {
-        Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-        pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
-        startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (sharedPref.getBoolean("isSave", false)) {
+        } else if (resultCode == RESULT_OK && requestCode == 2) {
             List<String> list = new ArrayList<String>();
 
             Spinner spinner = (Spinner) findViewById(R.id.repeatId);
 
-            list.add(sharedPref.getString("summary", ""));
+            list.add(data.getStringExtra("summary"));
             list.add("Repeats");
             list.add("Does not repeats");
 
@@ -143,26 +122,18 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
 
-            interval = sharedPref.getInt("interval", 0);
-            occurence = sharedPref.getInt("occurence", 0);
+            interval = data.getIntExtra("interval", 0);
+            occurence = data.getIntExtra("occurrence", 0);
 
-            duration = sharedPref.getString("duration", "week");
-            daysToRepeat = sharedPref.getString("intervaldays", "");
-            sharedPref.edit().putBoolean("isSave", false);
+            duration = data.getStringExtra("duration");
+            daysToRepeat = data.getStringExtra("intervaldays");
             isReoccur = true;
-
-        } else {
+        } else if (resultCode == RESULT_CANCELED && requestCode == 2) {
             displaySpinner();
         }
-    }
-
-    @Override
-    protected  void onDestroy() {
-        super.onDestroy();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.edit().clear().commit();
 
     }
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -172,22 +143,23 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
                 Intent intent = new Intent(ScheduleMessageActivity.this, Dialog.class);
                 EditText date = findViewById(R.id.dateId);
                 intent.putExtra("date", date.getText().toString());
-                startActivity(intent);
+                startActivityForResult(intent, 2);
             } else {
-                displayToast("Date required before repeat");
+                displayToast("Date required before repeat", 0);
             }
         } else if (position == 3) {
             isReoccur = false;
         }
     }
 
-    public void displayToast(String message) {
+    public void displayToast(String message, int messageType) {
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(this, message, duration);
         toast.show();
-        displaySpinner();
-
+        if (messageType == 0) {
+            displaySpinner();
+        }
     }
 
     @Override
@@ -241,8 +213,6 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
 
     public void onSubmit(View v) {
 
-       // getPhoneNumberDetails("09055930629,0902 040 6098");
-
         Calendar startTime = Calendar.getInstance();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -261,28 +231,26 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
         if (isValidDate(startTime)) {
             Map<String, String> userValidity  = validateUserInput();
             if (userValidity.get("isValid").equals("true")) {
-                String[] phoneNumberDetails = getPhoneNumberDetails(phoneNumberText.getText().toString()).split(",,,");
 
-                Long value = isReoccur ? db.insertMessage(userValidity.get("message"), phoneNumberDetails[0],
-                        time, time, occurence, interval, duration + "," + daysToRepeat,  occurence -1, phoneNumberDetails[1], phoneNumberDetails[2], 0) :
+                Long value = isReoccur ? db.insertMessage(userValidity.get("message"), phoneNumbers,
+                        time, time, occurence, interval, duration + "," + daysToRepeat,  occurence -1, phoneNames, phonePhotoUris, 0) :
 
-                        db.insertMessage(userValidity.get("message"), phoneNumberDetails[0], time, time,
-                                0, 0, "",  0, phoneNumberDetails[1], phoneNumberDetails[2], 0);
+                        db.insertMessage(userValidity.get("message"), phoneNumbers, time, time,
+                                0, 0, "",  0, phoneNames, phonePhotoUris, 0);
 
 
                 if (value > 0) {
                     DialogFragment newFragment = new ConfirmationDialogFragment();
                     newFragment.show(getFragmentManager(), "missiles");
-                    sharedPref.edit().clear().commit();
                 } else {
-                    displayToast("An unknown error occurred");
+                    displayToast("An unknown error occurred", 1);
                 }
             } else {
-                displayToast(userValidity.get("message"));
+                displayToast(userValidity.get("message"), 1);
             }
 
         } else {
-            displayToast("Invalid date, messages can not be scheduled in the past");
+            displayToast("Invalid date, messages can not be scheduled in the past", 1);
         }
     }
 
@@ -293,60 +261,5 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
             return false;
         }
         return  true;
-    }
-
-    public String getPhoneNumber(Uri contactUri) {
-        // We only need the NUMBER column, because there will be only one row in the result
-        String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
-
-        // CAUTION: The query() method should be called from a separate thread to avoid blocking
-
-        Cursor cursor = getContentResolver()
-                .query(contactUri, projection, null, null, null);
-        cursor.moveToFirst();
-
-        // Retrieve the phone number from the NUMBER column
-        int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-        return cursor.getString(column);
-
-    }
-
-    public void assignContacts() {
-        contacts = new HashMap<String, String[]>();
-
-        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-
-        while (phones.moveToNext()) {
-            String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            String photoUri = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI)) != null ? phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI)) : "null";
-
-            String[] imgName = new String[2];
-            imgName[0] = name;
-            imgName[1] = photoUri;
-
-            contacts.put(phoneNumber, imgName);
-        }
-        phones.close();
-    }
-
-    public String getPhoneNumberDetails(String phoneNumbers) {
-        String phoneNumber = "";
-        String name = "";
-        String photoUri = "";
-
-        String[] phoneNumberLists = phoneNumbers.split(",");
-        String[] defaultPhoneDetails =  {"Anonymous", "null"};
-
-        for (int i = 0; i < phoneNumberLists.length; i++) {
-            String[] phoneNumberDetails = contacts.get(phoneNumberLists[i].trim()) != null ? contacts.get(phoneNumberLists[i].trim()) : defaultPhoneDetails;
-
-            phoneNumber = i == 0 ? phoneNumber + phoneNumberLists[i] : phoneNumber + "," + phoneNumberLists[i];
-            name = i == 0 ? name + phoneNumberDetails[0] :  name + "," + phoneNumberDetails[0];
-            photoUri = i == 0 ? photoUri + phoneNumberDetails[1] : photoUri + "," + phoneNumberDetails[1];
-        }
-
-
-      return phoneNumber + ",,," + name + ",,," + photoUri;
     }
 }
