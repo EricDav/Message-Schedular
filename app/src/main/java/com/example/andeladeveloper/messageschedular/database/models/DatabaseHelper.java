@@ -147,6 +147,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.update(MessageCollections.TABLE_NAME, values,
                 MessageCollections.COLLECTION_ID + "=" + collectionId.toString() + " AND " + MessageCollections.COLUMN_POSITION + "=" + position.toString(),null);
+        db.close();
     }
 
     public long insertPhoneNumberDetails(Integer collectionId, String phoneNumber, String name, String status, Integer position) {
@@ -183,7 +184,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values.put(ScheduledMessage.COLUMN_STATUS, status);
 
-        return db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        int update = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        return update;
 
     }
 
@@ -209,7 +214,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values.put(ScheduledMessage.COLUMN_REMAINING_OCCURRENCE, remainingOccurrence);
 
-        return db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        int update = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        return update;
     }
 
     public long insertSentMessages(String message, String status, Integer collectionId, String time) {
@@ -260,7 +269,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         scheduledMessage.setTimestamp(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIMESTAMP)));
 
         cursor.close();
-        db.close();
 
         return scheduledMessage;
     }
@@ -298,7 +306,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
 
-        db.close();
+        cursor.close();
+
         return 0;
     }
 

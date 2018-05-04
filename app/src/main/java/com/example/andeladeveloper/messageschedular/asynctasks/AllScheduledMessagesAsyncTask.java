@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.andeladeveloper.messageschedular.Activities.MainActivity;
@@ -29,6 +30,7 @@ public class AllScheduledMessagesAsyncTask extends AsyncTask<String, Void, List<
         db = new DatabaseHelper(context);
         this.recyclerView = recyclerView;
         this.context = context;
+        this.textView = textView;
     }
 
     @Override
@@ -52,15 +54,17 @@ public class AllScheduledMessagesAsyncTask extends AsyncTask<String, Void, List<
         mainActivity.setScheduledMessages(result);
         if (result.size() == 0) {
             if (messageType.equals("all")) {
-                textView.setText("There is no scheduled message. Click the icon below to schedule a message");
+                textView.setText("You have not scheduled any message yet. Click on the icon below to schedule a message");
             } else if (messageType.equals("single")) {
                 textView.setText("There is no single scheduled message");
             } else {
                 textView.setText("There is no message collection");
             }
+            textView.setVisibility(View.VISIBLE);
         } else {
-            recyclerView.setAdapter(new ScheduleMessageAdapter(result));
+            textView.setVisibility(View.GONE);
         }
+        recyclerView.setAdapter(new ScheduleMessageAdapter(result));
     }
 
     /**

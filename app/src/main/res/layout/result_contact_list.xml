@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recycler_view_result"
+    android:layout_width="150dp"
+    android:layout_height="50dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    >
+        <TextView
+            android:id="@+id/contactNameResultId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"
+            android:singleLine="true"
+            android:textSize="16sp"
+            android:layout_marginBottom="10dp"
+            android:text="Alienyi David"
+            />
+
+    <TextView
+        android:id="@+id/contactNumberResultId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="09055930629"
+        android:singleLine="true"
+        android:textColor="#000"
+        android:layout_marginTop="-6dp"
+        android:layout_marginStart="16dp"
+        android:textSize="16sp"
+        android:textStyle="italic" />
+</LinearLayout>

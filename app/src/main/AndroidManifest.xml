@@ -53,10 +53,18 @@
             android:name=".Activities.StatusDialogActivity"
             android:label="Reports"
             android:textColor="#000"
-            android:theme="@style/Theme.AppCompat.Dialog"/>
+            android:theme="@style/Theme.AppCompat.Dialog" />
         <activity
             android:name=".Activities.SingleCollectionActivity"
-            android:theme="@style/Theme.AppCompat.Dialog"
+            android:theme="@style/Theme.AppCompat.Dialog" />
+        <activity
+            android:name=".ContactListsActivity"
+            android:label="Select Contacts"
+            android:parentActivityName=".Activities.SingleScheduledMessage" />
+        <activity
+            android:name=".ContactListActivity"
+            android:label="Select Contacts"
+            android:parentActivityName=".Activities.SingleScheduledMessage"
             >
 
         </activity>

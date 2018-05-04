@@ -17,6 +17,9 @@
     <TextView
         android:id="@+id/emptyMainTextId"
         android:visibility="gone"
+        android:layout_marginStart="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:textColor="#000"
         android:textStyle="italic"

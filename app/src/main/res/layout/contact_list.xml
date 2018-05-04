@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <CheckBox
+            android:id="@+id/contactCheckBoxId"
+            android:layout_width="wrap_content"
+            android:onClick="onClick"
+            android:layout_height="wrap_content"
+            android:buttonTint="@android:color/holo_red_light"
+            android:layout_marginLeft="16dp"
+            />
+        <TextView
+            android:id="@+id/contactNameId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:text="Alienyi David"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/contactNumberId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="09055930629"
+        android:textColor="#000"
+        android:layout_marginTop="-6dp"
+        android:layout_marginStart="46dp"
+        android:textSize="16sp"
+        android:textStyle="italic" />
+</LinearLayout>

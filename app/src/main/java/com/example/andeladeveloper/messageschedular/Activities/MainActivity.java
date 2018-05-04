@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     private ScheduleMessageAdapter messageAdapter;
     private List<ScheduledMessage> scheduledMessages;
 
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,17 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
         }
 
+        DatabaseHelper db = new DatabaseHelper(this);
+//
+//        List<ScheduledMessage> scheduleMessages = db.getAllScheduledMessages("DESC");
+//
+//        ScheduledMessage scheduleMessage = scheduleMessages.get(2);
+//
+//        Log.d("PHONE_NAME", scheduleMessage.getPhoneName());
+//        Log.d("PHONE_NUMBER", scheduleMessage.getPhoneNumber());
+//        Log.d("PHONE_PHOTOURI", scheduleMessage.getPhonePhotoUri());
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -113,7 +125,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
             startAlarm();
         }
-      //db.dropTable();
+      // db.dropTable();
 
         setRecyclerViewLayout();
         emptyTextView = findViewById(R.id.emptyMainTextId);

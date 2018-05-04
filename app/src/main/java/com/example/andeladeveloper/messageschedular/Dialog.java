@@ -1,5 +1,6 @@
 package com.example.andeladeveloper.messageschedular;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.andeladeveloper.messageschedular.dialogs.MaximumContactsDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,9 +70,6 @@ public class Dialog extends AppCompatActivity implements
             @Override
             public void afterTextChanged(Editable s) {
 
-                RadioButton weekButon = findViewById(R.id.weekRadioButtonId);
-                RadioButton monthButon = findViewById(R.id.monthRadioButtonId);
-                RadioButton yearButon = findViewById(R.id.yearRadioButtonId);
 
                 if (!editText.getText().toString().equals("") && Integer.parseInt(editText.getText().toString()) > 1) {
                     addDropdown(false);
@@ -76,6 +77,17 @@ public class Dialog extends AppCompatActivity implements
                     addDropdown(true);
                 }
                 interval = editText.getText().toString().equals("") ? 1 : Integer.parseInt(editText.getText().toString());
+
+                if (duration.equals("week") && interval > 4) {
+                    displayDialogMessage("Weekly interval should be in the range of 1 - 4");
+                    editText.setText("1");
+                } else if (duration.equals("month") && interval > 11) {
+                    displayDialogMessage("Monthly interval should be in the range of 1 - 11");
+                    editText.setText("1");
+                } else if (duration.equals("day") && interval > 28) {
+                    displayDialogMessage("Daily interval should be in the range of 1 - 28");
+                    editText.setText("1");
+                }
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -93,7 +105,10 @@ public class Dialog extends AppCompatActivity implements
             public void afterTextChanged(Editable s) {
 
                 occurence = editText2.getText().toString().equals("") ? 5 : Integer.parseInt(editText2.getText().toString());
-                Log.d("ON_CHANGE", occurence.toString());
+                if (occurence > 100) {
+                    displayDialogMessage("Occurrences can not be more than 100");
+                    editText2.setText("");
+                }
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -113,6 +128,14 @@ public class Dialog extends AppCompatActivity implements
         });
     }
 
+    public void displayDialogMessage(String message) {
+        DialogFragment newFragment = new MaximumContactsDialog();
+        Bundle data = new Bundle();
+        data.putString("message", message);
+        newFragment.setArguments(data);
+        newFragment.show(getFragmentManager(), "missiles");
+    }
+
 
     public  void onDurationClick(View view) {
         RadioButton durationButton = (RadioButton)view;
@@ -121,7 +144,7 @@ public class Dialog extends AppCompatActivity implements
 
     public void setIntervalType(View view) {
         RadioButton intervalButton = (RadioButton)view;
-        intervalType = intervalButton.getText().toString();
+        intervalType = intervalButton.getText().toString().split(" ")[0];
         EditText after = findViewById(R.id.editText2);
         if (intervalType.equals("Never")) {
             after.setText("");
@@ -321,38 +344,36 @@ public class Dialog extends AppCompatActivity implements
         }
     }
     public void cancelDialog(View view) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean("isSave", false);
+        setResult(RESULT_CANCELED);
         finish();
     }
 
     public void onSave(View view) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Integer numOfOcc = intervalType == "Never" ? -1 : occurence;
-        SharedPreferences.Editor editor = sharedPref.edit();
+        Integer numOfOcc = intervalType == "Never" ? 100 : occurence;
 
-        editor.putInt("occurence", numOfOcc);
-        editor.putInt("interval", interval);
-        editor.putString("duration", duration);
-        editor.putBoolean("isSave", true);
+        Intent intent = new Intent();
+        intent.putExtra("occurrence", numOfOcc);
+        intent.putExtra("interval", interval);
+        intent.putExtra("duration", duration);
 
         if (duration == "week") {
             String daysInterval = "";
             for (int i = 0; i < checkedDays.size(); i++) {
                 daysInterval = checkedDays.size() - 1 > i ? daysInterval + checkedDays.get(i) + "," : daysInterval + checkedDays.get(i);
             }
-            editor.putString("intervaldays", daysInterval);
-            editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, " on " + daysInterval, "Weekly", "weeks"));
+            intent.putExtra("intervaldays", daysInterval);
+            intent.putExtra("summary", getReoccurenceSummary(numOfOcc, interval, " on " + daysInterval, "Weekly", "weeks"));
         } else if ( duration == "day") {
-            editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, "", "Daily", "days"));
+            intent.putExtra("summary", getReoccurenceSummary(numOfOcc, interval, "", "Daily", "days"));
         } else if (duration == "year") {
-            editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, "", "Yearly", "years"));
+            intent.putExtra("summary", getReoccurenceSummary(numOfOcc, interval, "", "Yearly", "years"));
         } else {
-            editor.putString("intervaldays", selectedMonthlyOccurence);
-            editor.putString("summary", getReoccurenceSummary(numOfOcc, interval, " on " + getMonthlyTime(selectedMonthlyOccurence.split(" ")), "Monthly", "months"));
+            intent.putExtra("intervaldays", selectedMonthlyOccurence);
+            intent.putExtra("summary", getReoccurenceSummary(numOfOcc, interval, " on " + getMonthlyTime(selectedMonthlyOccurence.split(" ")), "Monthly", "months"));
         }
-        editor.apply();
+
+        setResult(RESULT_OK, intent);
+
         finish();
     }
     public String getReoccurenceSummary(Integer occurence, Integer interval, String time, String adverbType, String pluralType) {
