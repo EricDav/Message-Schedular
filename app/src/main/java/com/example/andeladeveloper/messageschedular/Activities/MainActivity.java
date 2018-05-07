@@ -92,15 +92,18 @@ public class MainActivity extends AppCompatActivity
         }
 
         DatabaseHelper db = new DatabaseHelper(this);
-//
-//        List<ScheduledMessage> scheduleMessages = db.getAllScheduledMessages("DESC");
-//
-//        ScheduledMessage scheduleMessage = scheduleMessages.get(2);
-//
-//        Log.d("PHONE_NAME", scheduleMessage.getPhoneName());
-//        Log.d("PHONE_NUMBER", scheduleMessage.getPhoneNumber());
-//        Log.d("PHONE_PHOTOURI", scheduleMessage.getPhonePhotoUri());
 
+     //    List<MessageCollections>  messageCollections = db.getAllMessageCollections();
+
+        // ScheduledMessage scheduleMessage = scheduleMessages.get(2);
+//        Log.d("HOME_my_work", Integer.toString(messageCollections.size()));
+//        for (int i = 0; i < messageCollections.size(); i++) {
+//            MessageCollections scheduleMessage = messageCollections.get(i);
+//            Log.d("PHONE_COLLECTION_ID", scheduleMessage.getCollectionId().toString());
+//            Log.d("PHONE_ID", scheduleMessage.getId().toString());
+//            Log.d("PHONE_MESSAGE", scheduleMessage.getMessage());
+//            Log.d("PHONE_POSITION", scheduleMessage.getPosition().toString());
+//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
             startAlarm();
         }
-      // db.dropTable();
+     //db.dropTable();
 
         setRecyclerViewLayout();
         emptyTextView = findViewById(R.id.emptyMainTextId);
@@ -216,6 +219,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        Log.d("MENU_MAIN", "I GOT HERE OOOOOOO");
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

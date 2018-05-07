@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="63dp"
-    android:paddingTop="120dp"
+    android:paddingTop="140dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
   >
 

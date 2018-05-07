@@ -1,5 +1,6 @@
 package com.example.andeladeveloper.messageschedular.Activities;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActiv
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.UpdateMessageAsyncTask;
+import com.example.andeladeveloper.messageschedular.dialogs.ConfirmDeleteScheduledMessageDialog;
 
 public class SingleCollectionActivity extends AppCompatActivity {
     TextView messageTextView;
@@ -80,7 +82,6 @@ public class SingleCollectionActivity extends AppCompatActivity {
 
     public void closeDialog(View view) {
         if (!initialMessage.equals(message)) {
-            Log.d("INSIDE_INTENT", "I am inside intent");
             Intent intent = new Intent();
             intent.putExtra("id", id);
             intent.putExtra("message", message);
@@ -105,6 +106,18 @@ public class SingleCollectionActivity extends AppCompatActivity {
         saveImageIcon.setVisibility(View.VISIBLE);
     }
 
+    public void deleteMessage(View view) {
+        DialogFragment newFragment = new ConfirmDeleteScheduledMessageDialog();
+        Bundle data = new Bundle();
+        data.putInt("id", id);
+        data.putInt("occurrence", -1);
+        data.putString("message", "Are you sure you want to delete this Message?");
+        data.putString("buttonText", "Delete");
+        newFragment.setArguments(data);
+        newFragment.show(getFragmentManager(), "missiles");
+    }
+
+
     /**
      * It enable a user to be able to edit a message.
      *
@@ -120,7 +133,7 @@ public class SingleCollectionActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Message can not be empty", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            new UpdateMessageAsyncTask(this).execute(id.toString(), updatedMessage);
+            new UpdateMessageAsyncTask(this, true).execute(id.toString(), updatedMessage);
 
             message = updatedMessage;
             view.setVisibility(View.GONE);
@@ -137,5 +150,14 @@ public class SingleCollectionActivity extends AppCompatActivity {
         intent.putExtra("position", position);
         startActivity(intent);
     }
+
+   public void  dismissDialogOnDelete() {
+       Log.d("INSIDE_RESULT", "I am inside result bro!!!");
+       Intent intent = new Intent();
+       intent.putExtra("id", id);
+       intent.putExtra("delete", true);
+       setResult(RESULT_OK, intent);
+       finish();
+   }
 
 }

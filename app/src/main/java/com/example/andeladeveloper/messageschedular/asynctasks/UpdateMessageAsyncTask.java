@@ -18,9 +18,11 @@ public class UpdateMessageAsyncTask extends AsyncTask<String, Void, Integer> {
 
     private DatabaseHelper db;
     private  Context context;
-    public UpdateMessageAsyncTask(Context context) {
+    private boolean isCollection;
+    public UpdateMessageAsyncTask(Context context, boolean isCollection) {
         db = new DatabaseHelper(context);
         this.context = context;
+        this.isCollection = isCollection;
     }
 
     protected void onProgressUpdate(Integer... progress) {
@@ -32,12 +34,15 @@ public class UpdateMessageAsyncTask extends AsyncTask<String, Void, Integer> {
     protected Integer doInBackground(String...params) {
         Integer id = Integer.parseInt(params[0]);
         String message = params[1];
-        return db.updateMessageCollectionById(id, message);
+        if (isCollection) {
+            return db.updateMessageCollectionById(id, message);
+        }
+        return db.updateScheduleMessage(id, message);
 
     }
     protected void onPostExecute(Integer result) {
         if (result == 0) {
-            Toast toast = Toast.makeText(context, "An error occured could not save message", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, "An error occurred could not save message", Toast.LENGTH_SHORT);
             toast.show();
         } else {
             Toast toast = Toast.makeText(context, "Massage saved successfully", Toast.LENGTH_SHORT);

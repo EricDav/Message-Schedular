@@ -31,12 +31,14 @@ public class AllContactsAsyncTask extends AsyncTask<Void, Void, List<Contact>> {
     private RecyclerView recyclerView;
     private RecyclerView recyclerViewResult;
     private TextView loadingTextView;
+    private boolean isEditContact= false;
 
-    public AllContactsAsyncTask(Context context, RecyclerView recyclerView, RecyclerView recyclerViewResult, TextView textView) {
+    public AllContactsAsyncTask(Context context, RecyclerView recyclerView, RecyclerView recyclerViewResult, TextView textView, boolean isEditContact) {
         this.context = context;
         this.recyclerView = recyclerView;
         this.recyclerViewResult = recyclerViewResult;
         this.loadingTextView = textView;
+        this.isEditContact = isEditContact;
     }
 
     @Override
@@ -55,7 +57,6 @@ public class AllContactsAsyncTask extends AsyncTask<Void, Void, List<Contact>> {
         }
         phones.close();
 
-        Log.d("LENGTH", Integer.toString(contacts.size()));
         return contacts;
     }
 
@@ -63,13 +64,16 @@ public class AllContactsAsyncTask extends AsyncTask<Void, Void, List<Contact>> {
         loadingTextView.setVisibility(View.GONE);
         ContactListActivity contactListsActivity = (ContactListActivity) context;
         contactListsActivity.setContactList(result);
-        setRecyclerViewLayout(result);
-        List<Contact> contacts = new ArrayList<>();
+        if (isEditContact) {
+            List<Contact> editContactResult = contactListsActivity.getContacts(result);
+            setRecyclerViewLayout(editContactResult);
+            setResultRecyclerViewLayout(contactListsActivity.getContactsResult());
+        } else {
+            setRecyclerViewLayout(result);
+            List<Contact> contacts = new ArrayList<>();
+            setResultRecyclerViewLayout(contacts);
+        }
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
-        recyclerViewResult.setLayoutManager(mLayoutManager);
-        recyclerViewResult.setItemAnimator(new DefaultItemAnimator());
-        recyclerViewResult.setAdapter(new ContactsResultAdapter(contacts));
     }
 
     /**
@@ -81,6 +85,13 @@ public class AllContactsAsyncTask extends AsyncTask<Void, Void, List<Contact>> {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(new ContactsAdapter(result));
+    }
+    public void setResultRecyclerViewLayout(List<Contact> contacts) {
 
+        Log.d("CONTACTS_LENGTH", Integer.toString(contacts.size()));
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewResult.setLayoutManager(mLayoutManager);
+        recyclerViewResult.setItemAnimator(new DefaultItemAnimator());
+        recyclerViewResult.setAdapter(new ContactsResultAdapter(contacts));
     }
 }

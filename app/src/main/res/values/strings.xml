@@ -25,7 +25,7 @@
         <item>months</item>
         <item>years</item>
     </string-array>
-    <string name="title_activity_single_scheduled_message">SingleScheduledMessage</string>
+    <string name="title_activity_single_scheduled_message">Scheduled Message</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>

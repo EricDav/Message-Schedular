@@ -60,7 +60,8 @@ public class PendingCollectionFragment extends Fragment {
 
             @Override
             public void onClick(View view, int position) {
-                Intent intent = new Intent(getContext(), SingleCollectionActivity.class);
+                Log.d("ON_CLICK", "I am clickinbg ooooo");
+                Intent intent = new Intent(getActivity(), SingleCollectionActivity.class);
                 MessageCollections messageCollection = messageCollections.get(position);
 
                 intent.putExtra("message", messageCollection.getMessage());
@@ -84,11 +85,18 @@ public class PendingCollectionFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("INSIDE", "I got inside here bro");
-        if (resultCode == getActivity().RESULT_OK && requestCode == REQUEST_CODE) {
+        Log.d("INSIDE_RESULT_ACTIVITY", "I am inside result ACTIVITY bro!!!");
+        if (resultCode == getActivity().RESULT_OK && requestCode == 1) {
             if (data.hasExtra("id")) {
-                mRecyclerView.setAdapter(new CollectionMessageAdapter(updateMessageCollections(messageCollections,
-                        data.getIntExtra("id", 0), data.getStringExtra("message"))));
+                if (data.hasExtra("delete")) {
+//                    Log.d("DELETE", "I got here bro......");
+//                    Log.d("DELETE_ID", Integer.toString(data.getIntExtra("id", 0)));
+                    mRecyclerView.setAdapter(new CollectionMessageAdapter(deleteMessageCollection(messageCollections,
+                            data.getIntExtra("id", 0))));
+                } else {
+                    mRecyclerView.setAdapter(new CollectionMessageAdapter(updateMessageCollections(messageCollections,
+                            data.getIntExtra("id", 0), data.getStringExtra("message"))));
+                }
             }
         }
     }
@@ -104,6 +112,18 @@ public class PendingCollectionFragment extends Fragment {
                 newMessageCollections.add(messageCollections.get(i));
             }
         }
+        return newMessageCollections;
+    }
+    private List<MessageCollections> deleteMessageCollection(List<MessageCollections> messageCollections, int id) {
+        Log.d("DELETE_ID", Integer.toString(id));
+        List<MessageCollections> newMessageCollections = new ArrayList<>();
+
+        for(int i = 0; i < messageCollections.size(); i++) {
+            if (messageCollections.get(i).getId() != id) {
+                newMessageCollections.add(messageCollections.get(i));
+            }
+        }
+
         return newMessageCollections;
     }
 }

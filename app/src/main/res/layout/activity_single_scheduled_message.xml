@@ -6,8 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.andeladeveloper.messageschedular.Activities.SingleScheduledMessage">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        >
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_single_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
     <fragment
         android:id="@+id/pendingCollectionFragmentId"
+        android:layout_marginTop="15dp"
         android:name="com.example.andeladeveloper.messageschedular.Fragments.PendingCollectionFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,6 +29,7 @@
         />
     <fragment
         android:id="@+id/expiredCollectionFragmentId"
+        android:layout_marginTop="15dp"
         android:name="com.example.andeladeveloper.messageschedular.Fragments.ExpiredCollectionFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +38,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="vertical"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
     </LinearLayout>
     <ScrollView
         android:id="@+id/mainScrollId"
@@ -47,8 +63,8 @@
 
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="68dp"
-            android:layout_marginTop="10dp">
+            android:layout_height="80dp"
+            android:layout_marginTop="30dp">
 
             <LinearLayout
                 android:id="@+id/imageLinearLayout"
@@ -58,19 +74,33 @@
                 android:orientation="horizontal">
             </LinearLayout>
         </HorizontalScrollView>
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/layout1"
+        android:layout_marginLeft="16dp"
+        android:layout_height="wrap_content">
         <TextView
             android:id="@+id/messageTitleId"
-            android:layout_width="match_parent"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="16dp"
+            android:layout_width="wrap_content"
             android:textSize="16dp"
             android:textColor="#000"
             android:textStyle="bold"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="@+id/layout1"
             android:text="Message:  "
             />
+        <ImageView
+            android:id="@+id/editMessageIcon"
+            android:onClick="editMessage"
+            android:layout_width="match_parent"
+            android:scaleType="fitEnd"
+            android:layout_gravity="left"
+            android:layout_marginRight="16dp"
+            android:src="@drawable/ic_edit_black_24dp"
+            android:layout_height="match_parent"
+            />
+    </LinearLayout>
         <TextView
             android:id="@+id/message"
             android:layout_width="match_parent"
@@ -80,6 +110,57 @@
             android:layout_height="match_parent"
             android:text="Message"
             />
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/updateMessageId"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            >
+
+            <EditText
+                android:id="@+id/editTextMessageId"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:hint="Message"
+                android:inputType="text|textMultiLine" />
+        </android.support.design.widget.TextInputLayout>
+        <LinearLayout
+            android:id="@+id/updateButtonId"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal"
+            >
+            <Button
+                android:id="@+id/cancelEditMessageId"
+                android:layout_width="120dp"
+                android:layout_marginTop="0dp"
+                android:textStyle="bold"
+                android:layout_height="35dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:textAlignment="textEnd"
+                android:text="Cancel"
+                android:onClick="cancelUpdate"
+                android:textColor="@android:color/holo_red_light"
+                />
+            <Button
+                android:id="@+id/saveEditMessageId"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="0dp"
+                android:textStyle="bold"
+                android:layout_height="35dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_marginRight="16dp"
+                android:textAlignment="textEnd"
+                android:textColor="#303F9F"
+                android:onClick="saveUpdate"
+                android:text="Save"
+                />
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/createdOnGroupId"
             android:layout_width="match_parent"
@@ -200,18 +281,6 @@
                     android:textStyle="italic"
                     />
         </LinearLayout>
-        <Button
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginVertical="30dp"
-            android:id="@+id/stopMessageButtonId"
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/round_button"
-            android:text="STOP"
-            android:textColor="#FFFFFF" />
     </LinearLayout>
     </ScrollView>
 
