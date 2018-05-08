@@ -9,9 +9,11 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +36,7 @@ import android.widget.Toast;
 
 import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity;
 import com.example.andeladeveloper.messageschedular.ContactListActivity;
+import com.example.andeladeveloper.messageschedular.Fragments.PendingCollectionFragment;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.adapters.CollectionMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
@@ -199,6 +202,8 @@ public class SingleScheduledMessage extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK && requestCode == 5) {
             phoneNumbers = data.getStringExtra("phoneNumbers").split(",");
             names = data.getStringExtra("phoneNames").split(",");
@@ -206,6 +211,25 @@ public class SingleScheduledMessage extends AppCompatActivity {
             String[] contacts = {data.getStringExtra("phoneNumbers"), data.getStringExtra("phoneNames"), data.getStringExtra("phonePhotoUris")};
             new UpdateScheduleContactsAsyncTask(this, contacts).execute(id);
             setPhoneDetailsView();
+            } else if (resultCode == RESULT_OK) {
+                onActivityRequestResult(requestCode, resultCode, data, PendingCollectionFragment.class.getSimpleName());
+            }
+
+    }
+
+    private void onActivityRequestResult(int requestCode, int resultCode, Intent data, String fragmentName){
+        try {
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.getFragments().size() > 0) {
+                for(int i=0; i<fm.getFragments().size(); i++){
+                    android.support.v4.app.Fragment fragment =  fm.getFragments().get(i);
+                    if (fragment != null && fragment.getClass().getSimpleName().equalsIgnoreCase(fragmentName)) {
+                        fragment.onActivityResult(requestCode, resultCode, data);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -372,7 +396,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
 
     public String getWeekDays(String[] duration, Map<String, String>weekDaysFull) {
         String weekDays = "";
-        Log.d("LENGTH", Integer.toString(duration.length));
+
         for(int i = 1; i < duration.length; i++) {
             weekDays = i == 1 ? weekDaysFull.get(duration[i]) : weekDays + ", " + weekDaysFull.get(duration[i]);
         }
@@ -383,7 +407,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
         List<PhoneNumberDetails> phoneNumberDetails;
         TextView textView = findViewById(R.id.statusHeader);
 
-        if (phoneNumbers.length > 1 && occurrence == 0) {
+        if (phoneNumbers.length > 1 && status > 1) {
             textView.setText("Report: ");
             TextView viewMore = findViewById(R.id.viewMore);
             viewMore.setVisibility(View.VISIBLE);
@@ -396,11 +420,10 @@ public class SingleScheduledMessage extends AppCompatActivity {
         } else if (status == 3 && occurrence == 0) {
             statusTextView.setText("Cancelled");
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length == 1) {
-             new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence);
+             new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length > 1) {
-            new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence);
+            new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (occurrence > 0) {
-
             Integer[] statusCount = statusCount();
             String numStatus = statusCount[0].toString() + " expired and " + statusCount[1] + " pending";
             statusTextView.setText(numStatus);

@@ -35,9 +35,9 @@ public class MessageCollections {
             this.id = id;
             this.collectionId = collectionId;
             this.time = time;
-
+            this.position = position;
         }
-        public MessageCollections() {}
+    public MessageCollections() {}
 
     public void setMessage(String message) {
         this.message = message;

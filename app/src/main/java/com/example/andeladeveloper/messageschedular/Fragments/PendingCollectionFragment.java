@@ -30,7 +30,7 @@ import static com.example.andeladeveloper.messageschedular.Activities.SingleSche
  */
 
 public class PendingCollectionFragment extends Fragment {
-    private static final int ACTIVITY_CONSTANT = 1;
+    private static final int ACTIVITY_CONSTANT = 10;
     List<MessageCollections> messageCollections;
     RecyclerView mRecyclerView;
 
@@ -86,7 +86,7 @@ public class PendingCollectionFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("INSIDE_RESULT_ACTIVITY", "I am inside result ACTIVITY bro!!!");
-        if (resultCode == getActivity().RESULT_OK && requestCode == 1) {
+        if (resultCode == getActivity().RESULT_OK && requestCode == 10) {
             if (data.hasExtra("id")) {
                 if (data.hasExtra("delete")) {
 //                    Log.d("DELETE", "I got here bro......");

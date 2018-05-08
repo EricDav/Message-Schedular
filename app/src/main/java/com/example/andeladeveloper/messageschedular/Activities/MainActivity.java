@@ -39,6 +39,7 @@ import com.example.andeladeveloper.messageschedular.ScheduleMessage;
 import com.example.andeladeveloper.messageschedular.SentMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.AllScheduledMessagesAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.GetScheduleMessageAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
             startAlarm();
         }
-     //db.dropTable();
+     // db.dropTable();
 
         setRecyclerViewLayout();
         emptyTextView = findViewById(R.id.emptyMainTextId);
@@ -137,21 +138,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view, int position) {
                 ScheduledMessage scheduledMessage = scheduledMessages.get(position);
 
-                Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
-                intent.putExtra("message", scheduledMessage.getMessage());
-                intent.putExtra("names", scheduledMessage.getPhoneName());
-                intent.putExtra("time", scheduledMessage.getStartTime());
-                intent.putExtra("id", scheduledMessage.getId());
-                intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
-                intent.putExtra("occurrence", scheduledMessage.getOccurrence());
-                intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
-                intent.putExtra("interval", scheduledMessage.getInterval());
-                intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
-                intent.putExtra("status", scheduledMessage.getStatus());
-                intent.putExtra("createdAt", scheduledMessage.getTimestamp());
-                intent.putExtra("duration", scheduledMessage.getDuration());
-
-                startActivity(intent);
+                new GetScheduleMessageAsyncTask(MainActivity.this).execute(scheduledMessage.getId());
             }
 
             @Override
@@ -320,5 +307,24 @@ public class MainActivity extends AppCompatActivity
 
     public void setScheduledMessages(List<ScheduledMessage> scheduledMessages) {
         this.scheduledMessages = scheduledMessages;
+    }
+
+    public void moveToSingleScheduleActivity(ScheduledMessage scheduledMessage) {
+
+        Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
+        intent.putExtra("message", scheduledMessage.getMessage());
+        intent.putExtra("names", scheduledMessage.getPhoneName());
+        intent.putExtra("time", scheduledMessage.getStartTime());
+        intent.putExtra("id", scheduledMessage.getId());
+        intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
+        intent.putExtra("occurrence", scheduledMessage.getOccurrence());
+        intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
+        intent.putExtra("interval", scheduledMessage.getInterval());
+        intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
+        intent.putExtra("status", scheduledMessage.getStatus());
+        intent.putExtra("createdAt", scheduledMessage.getTimestamp());
+        intent.putExtra("duration", scheduledMessage.getDuration());
+
+        startActivity(intent);
     }
 }

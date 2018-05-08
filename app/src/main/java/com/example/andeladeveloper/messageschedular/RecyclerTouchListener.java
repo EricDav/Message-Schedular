@@ -6,6 +6,7 @@ package com.example.andeladeveloper.messageschedular;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +19,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
 
     public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
+        Log.d("TOURCH", "I am touching");
         this.clickListener = clickListener;
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override

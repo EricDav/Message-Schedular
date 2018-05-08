@@ -611,6 +611,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(ScheduledMessage.COLUMN_MESSAGE, message);
+        ScheduledMessage scheduledMessage = getScheduledMessage(id);
+        if (scheduledMessage.getRemainingOccurrence() < 0 ) {
+            db.close();
+            return -2;
+        }
 
         int numOfRowsAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
 

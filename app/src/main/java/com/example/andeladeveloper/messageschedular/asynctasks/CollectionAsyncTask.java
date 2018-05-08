@@ -32,6 +32,7 @@ public class CollectionAsyncTask extends AsyncTask<Integer, Void, List<PhoneNumb
     }
 
     protected void onPostExecute(List<PhoneNumberDetails> result) {
+        Log.d("SIZE", Integer.toString(result.size()));
         if (result.size() == 1) {
             Log.d("AsyncMagic", result.get(0).getStatus());
             textView.setText(result.get(0).getStatus());
