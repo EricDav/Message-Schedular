@@ -61,6 +61,7 @@ public class ScheduleMessage extends BroadcastReceiver {
                         db.updateRemainingOccurrence(message.getRemainingOccurrence() - 1, message.getId());
                     } else {
                         db.updateMessageStatus(2, message.getId());
+                        db.updateRemainingOccurrence(message.getRemainingOccurrence() - 1, message.getId());
                     }
 
                 }

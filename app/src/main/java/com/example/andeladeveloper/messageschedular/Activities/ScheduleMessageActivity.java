@@ -92,6 +92,7 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
         db = new DatabaseHelper(this);
         // db.createSentMessageTable();
         displaySpinner();
+        Log.d("ON_CREATE", "I GOT HERE WHEN THE STUFF IS CLICKED");
 
     }
 

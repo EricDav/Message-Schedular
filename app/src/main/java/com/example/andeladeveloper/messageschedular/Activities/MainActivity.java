@@ -39,6 +39,7 @@ import com.example.andeladeveloper.messageschedular.ScheduleMessage;
 import com.example.andeladeveloper.messageschedular.SentMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.AllScheduledMessagesAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.GetScheduleMessageAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
@@ -92,15 +93,18 @@ public class MainActivity extends AppCompatActivity
         }
 
         DatabaseHelper db = new DatabaseHelper(this);
-//
-//        List<ScheduledMessage> scheduleMessages = db.getAllScheduledMessages("DESC");
-//
-//        ScheduledMessage scheduleMessage = scheduleMessages.get(2);
-//
-//        Log.d("PHONE_NAME", scheduleMessage.getPhoneName());
-//        Log.d("PHONE_NUMBER", scheduleMessage.getPhoneNumber());
-//        Log.d("PHONE_PHOTOURI", scheduleMessage.getPhonePhotoUri());
 
+     //    List<MessageCollections>  messageCollections = db.getAllMessageCollections();
+
+        // ScheduledMessage scheduleMessage = scheduleMessages.get(2);
+//        Log.d("HOME_my_work", Integer.toString(messageCollections.size()));
+//        for (int i = 0; i < messageCollections.size(); i++) {
+//            MessageCollections scheduleMessage = messageCollections.get(i);
+//            Log.d("PHONE_COLLECTION_ID", scheduleMessage.getCollectionId().toString());
+//            Log.d("PHONE_ID", scheduleMessage.getId().toString());
+//            Log.d("PHONE_MESSAGE", scheduleMessage.getMessage());
+//            Log.d("PHONE_POSITION", scheduleMessage.getPosition().toString());
+//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -125,7 +129,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
             startAlarm();
         }
-      // db.dropTable();
+     // db.dropTable();
 
         setRecyclerViewLayout();
         emptyTextView = findViewById(R.id.emptyMainTextId);
@@ -134,21 +138,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view, int position) {
                 ScheduledMessage scheduledMessage = scheduledMessages.get(position);
 
-                Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
-                intent.putExtra("message", scheduledMessage.getMessage());
-                intent.putExtra("names", scheduledMessage.getPhoneName());
-                intent.putExtra("time", scheduledMessage.getStartTime());
-                intent.putExtra("id", scheduledMessage.getId());
-                intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
-                intent.putExtra("occurrence", scheduledMessage.getOccurrence());
-                intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
-                intent.putExtra("interval", scheduledMessage.getInterval());
-                intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
-                intent.putExtra("status", scheduledMessage.getStatus());
-                intent.putExtra("createdAt", scheduledMessage.getTimestamp());
-                intent.putExtra("duration", scheduledMessage.getDuration());
-
-                startActivity(intent);
+                new GetScheduleMessageAsyncTask(MainActivity.this).execute(scheduledMessage.getId());
             }
 
             @Override
@@ -216,6 +206,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        Log.d("MENU_MAIN", "I GOT HERE OOOOOOO");
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -316,5 +307,24 @@ public class MainActivity extends AppCompatActivity
 
     public void setScheduledMessages(List<ScheduledMessage> scheduledMessages) {
         this.scheduledMessages = scheduledMessages;
+    }
+
+    public void moveToSingleScheduleActivity(ScheduledMessage scheduledMessage) {
+
+        Intent intent = new Intent(MainActivity.this, SingleScheduledMessage.class);
+        intent.putExtra("message", scheduledMessage.getMessage());
+        intent.putExtra("names", scheduledMessage.getPhoneName());
+        intent.putExtra("time", scheduledMessage.getStartTime());
+        intent.putExtra("id", scheduledMessage.getId());
+        intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
+        intent.putExtra("occurrence", scheduledMessage.getOccurrence());
+        intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
+        intent.putExtra("interval", scheduledMessage.getInterval());
+        intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
+        intent.putExtra("status", scheduledMessage.getStatus());
+        intent.putExtra("createdAt", scheduledMessage.getTimestamp());
+        intent.putExtra("duration", scheduledMessage.getDuration());
+
+        startActivity(intent);
     }
 }

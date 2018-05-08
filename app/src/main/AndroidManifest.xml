@@ -44,10 +44,11 @@
         <activity
             android:name=".Activities.SingleScheduledMessage"
             android:label="@string/title_activity_single_scheduled_message"
-            android:parentActivityName=".Activities.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.andeladeveloper.messageschedular.Activities.MainActivity" />
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+                 <meta-data
+        android:name="android.support.PARENT_ACTIVITY"
+                      android:value="com.example.andeladeveloper.messageschedular.Activities.MainActivity" />
         </activity>
         <activity
             android:name=".Activities.StatusDialogActivity"
@@ -57,10 +58,6 @@
         <activity
             android:name=".Activities.SingleCollectionActivity"
             android:theme="@style/Theme.AppCompat.Dialog" />
-        <activity
-            android:name=".ContactListsActivity"
-            android:label="Select Contacts"
-            android:parentActivityName=".Activities.SingleScheduledMessage" />
         <activity
             android:name=".ContactListActivity"
             android:label="Select Contacts"

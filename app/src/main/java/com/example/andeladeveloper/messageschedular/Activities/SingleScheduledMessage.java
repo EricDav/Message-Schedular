@@ -1,28 +1,54 @@
 package com.example.andeladeveloper.messageschedular.Activities;
 
+import android.app.ActionBar;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity;
+import com.example.andeladeveloper.messageschedular.ContactListActivity;
+import com.example.andeladeveloper.messageschedular.Fragments.PendingCollectionFragment;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.adapters.CollectionMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.DeleteScheduledMessageAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.ToggleScheduleMessageStatusAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.UpdateMessageAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.UpdateScheduleContactsAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.PhoneNumberDetails;
+import com.example.andeladeveloper.messageschedular.dialogs.ConfirmDeleteScheduledMessageDialog;
+import com.example.andeladeveloper.messageschedular.dialogs.MaximumContactsDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,13 +60,23 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SingleScheduledMessage extends AppCompatActivity {
 
-    private TextView mTextMessage;
+    private TextView messageTitle;
+    private TextView messageBody;
+    private ImageView editMessageIcon;
+    private EditText editTextMessage;
     private Integer occurrence;
     private Integer remainingOccurrence;
     private Integer status;
     private String[] phoneNumbers;
+    String[] photoUri;
+    String[] names;
+    private TextView statusTextView;
+    private TextInputLayout updateMessage;
+    private LinearLayout linearLayout;
     private DatabaseHelper db;
     private Integer id;
+    private MenuItem item;
+    private Intent intent;
     public static final int REQUEST_CODE = 1;
 
     private List<MessageCollections> messageCollections;
@@ -83,15 +119,22 @@ public class SingleScheduledMessage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
+
+        intent = getIntent();
         id = intent.getIntExtra("id", 1);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         db = new DatabaseHelper(this);
         messageCollections = db.getAllMessageCollectionsByCollectionId(id);
         setContentView(R.layout.activity_single_scheduled_message);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_single_page);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        setStatusBarColor();
         View pendingFragment = findViewById(R.id.pendingCollectionFragmentId);
         View expiredFragment = findViewById(R.id.expiredCollectionFragmentId);
+        photoUri = intent.getStringExtra("photoUri").split(",");
+        names = intent.getStringExtra("names").split(",");
 
         pendingFragment.setVisibility(View.GONE);
         expiredFragment.setVisibility(View.GONE);
@@ -108,16 +151,22 @@ public class SingleScheduledMessage extends AppCompatActivity {
         Integer interval = intent.getIntExtra("interval", 0);
         phoneNumbers = intent.getStringExtra("phoneNumbers").split(",");
 
-       // int color = Integer.parseInt(ScheduleMessageAdapter.getColorCode(status), 16)+0xFF000000;
+        statusTextView = findViewById(R.id.statusValueId);
+        linearLayout = findViewById(R.id.updateButtonId);
+        updateMessage = findViewById(R.id.updateMessageId);
+        messageBody = (TextView) findViewById(R.id.message);
+        messageTitle = findViewById(R.id.messageTitleId);
+        editTextMessage = findViewById(R.id.editTextMessageId);
+        editMessageIcon = findViewById(R.id.editMessageIcon);
+        if (remainingOccurrence < 0) editMessageIcon.setVisibility(View.GONE);
 
-        setPhoneDetailsView(intent);
+        setPhoneDetailsView();
         setCreatedAtTextView(intent);
         setStatus();
 
         TextView textView = findViewById(R.id.message);
         TextView repeat = findViewById(R.id.repeatValueId);
         LinearLayout deliveredLinearLayout = findViewById(R.id.scheduledOnGroupId);
-        TextView statusTextView = findViewById(R.id.statusValueId);
         TextView scheduledAt = findViewById(R.id.scheduledAtId);
 
         if (occurrence == 0) {
@@ -151,19 +200,126 @@ public class SingleScheduledMessage extends AppCompatActivity {
         textView.setText(message);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == 5) {
+            phoneNumbers = data.getStringExtra("phoneNumbers").split(",");
+            names = data.getStringExtra("phoneNames").split(",");
+            photoUri = data.getStringExtra("phonePhotoUris").split(",");
+            String[] contacts = {data.getStringExtra("phoneNumbers"), data.getStringExtra("phoneNames"), data.getStringExtra("phonePhotoUris")};
+            new UpdateScheduleContactsAsyncTask(this, contacts).execute(id);
+            setPhoneDetailsView();
+            } else if (resultCode == RESULT_OK) {
+                onActivityRequestResult(requestCode, resultCode, data, PendingCollectionFragment.class.getSimpleName());
+            }
+
+    }
+
+    private void onActivityRequestResult(int requestCode, int resultCode, Intent data, String fragmentName){
+        try {
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.getFragments().size() > 0) {
+                for(int i=0; i<fm.getFragments().size(); i++){
+                    android.support.v4.app.Fragment fragment =  fm.getFragments().get(i);
+                    if (fragment != null && fragment.getClass().getSimpleName().equalsIgnoreCase(fragmentName)) {
+                        fragment.onActivityResult(requestCode, resultCode, data);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setStatusBarColor() {
+        Window window = getWindow();
+
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.colorPrimaryDark));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.single_page_main, menu);
+        Log.d("REMAINING", remainingOccurrence.toString());
+
+        if (remainingOccurrence < 0) {
+            for (int i = 0; i < menu.size(); i++) {
+                if (i != 0) {
+                    menu.getItem(i).setVisible(false);
+                }
+            }
+        } else {
+            MenuItem item = menu.getItem(2);
+            if (status == 1) {
+                item.setTitle("Restore");
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+
+                return true;
+            case R.id.stop:
+                if (status == 0) {
+                    DialogFragment newFragment = new ConfirmDeleteScheduledMessageDialog();
+                    Bundle data = new Bundle();
+                    data.putInt("id", id);
+                    data.putInt("status", status);
+                    data.putString("message", "Stopping this Scheduled message will prevent pending messages not to be sent when they are due.");
+                    data.putString("buttonText", "Stop");
+                    newFragment.setArguments(data);
+                    newFragment.show(getFragmentManager(), "missiles");
+                } else {
+                    new ToggleScheduleMessageStatusAsyncTask(this, status).execute(id);
+                }
+                this.item = item;
+                return true;
+            case R.id.delete:
+                DialogFragment newFragment = new ConfirmDeleteScheduledMessageDialog();
+                Bundle data = new Bundle();
+                data.putInt("id", id);
+                data.putInt("occurrence", occurrence);
+                data.putString("message", "Are you sure you want to delete this Scheduled Message?");
+                data.putString("buttonText", "Delete");
+                newFragment.setArguments(data);
+                newFragment.show(getFragmentManager(), "missiles");
+                return true;
+            case R.id.edit_contacts:
+                Intent intent = new Intent(this, ContactListActivity.class);
+                Log.d("PHONENUMBER_PASS", Integer.toString(phoneNumbers.length));
+                intent.putExtra("phoneNumbers", phoneNumbers);
+                startActivityForResult(intent, 5);
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Set the view that contains the images and the names of people that wants to receive the massage
      *
-      * @param intent The intent object that contains the necessary data passed from the main activity
      */
-    public void setPhoneDetailsView(Intent intent) {
-        String[] photoUri = intent.getStringExtra("photoUri").split(",");
-        String[] names = intent.getStringExtra("names").split(",");
+    public void setPhoneDetailsView() {
 
+        Log.d("LENGTH", Integer.toString(photoUri.length));
+        LinearLayout imageLinearLayout = findViewById(R.id.imageLinearLayout);
+        if(((LinearLayout) imageLinearLayout).getChildCount() > 0)
+            ((LinearLayout) imageLinearLayout).removeAllViews();
         for (int i = 0; i < photoUri.length; i++) {
-            LinearLayout imageLinearLayout = findViewById(R.id.imageLinearLayout);
-
             CircleImageView imageView  = new CircleImageView(this);
             LinearLayout linearLayout = new LinearLayout(this);
             TextView textView = new TextView(this);
@@ -240,7 +396,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
 
     public String getWeekDays(String[] duration, Map<String, String>weekDaysFull) {
         String weekDays = "";
-        Log.d("LENGTH", Integer.toString(duration.length));
+
         for(int i = 1; i < duration.length; i++) {
             weekDays = i == 1 ? weekDaysFull.get(duration[i]) : weekDays + ", " + weekDaysFull.get(duration[i]);
         }
@@ -248,42 +404,34 @@ public class SingleScheduledMessage extends AppCompatActivity {
     }
 
     public void setStatus() {
-        TextView statusTextView = findViewById(R.id.statusValueId);
         List<PhoneNumberDetails> phoneNumberDetails;
         TextView textView = findViewById(R.id.statusHeader);
 
-        if (phoneNumbers.length > 1 && occurrence == 0) {
+        if (phoneNumbers.length > 1 && status > 1) {
             textView.setText("Report: ");
             TextView viewMore = findViewById(R.id.viewMore);
             viewMore.setVisibility(View.VISIBLE);
         }
 
-        Log.d("TSTATUS", status.toString());
-
         if (status == 0 && occurrence == 0) {
             statusTextView.setText("Pending");
-        } else if (status == 1 && occurrence == 0) {
+        } else if (status == 1 && occurrence >= 0) {
             statusTextView.setText("Stopped");
         } else if (status == 3 && occurrence == 0) {
             statusTextView.setText("Cancelled");
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length == 1) {
-             new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence);
+             new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length > 1) {
-            new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence);
+            new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (occurrence > 0) {
-            TextView messageTitleTextView = findViewById(R.id.messageTitleId);
-            messageTitleTextView.setText("Default Message: ");
             Integer[] statusCount = statusCount();
             String numStatus = statusCount[0].toString() + " expired and " + statusCount[1] + " pending";
             statusTextView.setText(numStatus);
-
         }
     }
 
     public void viewMore(View view) {
         Intent intent = new Intent(this, StatusDialogActivity.class);
-        Log.d("IDIDID", occurrence.toString());
-        Log.d("RMIDID", remainingOccurrence.toString());
         intent.putExtra("id", id);
         intent.putExtra("position", 0);
         startActivity(intent);
@@ -350,14 +498,17 @@ public class SingleScheduledMessage extends AppCompatActivity {
         LinearLayout createdOn = findViewById(R.id.createdOnGroupId);
         LinearLayout repeatGroup = findViewById(R.id.reapeatGroupId);
         LinearLayout statusGroup = findViewById(R.id.statusGroupId);
-        Button stopButton = findViewById(R.id.stopMessageButtonId);
+        LinearLayout scheduledOn = findViewById(R.id.scheduledOnGroupId);
 
         message.setVisibility(View.GONE);
         messageTitle.setVisibility(View.GONE);
         createdOn.setVisibility(View.GONE);
         repeatGroup.setVisibility(View.GONE);
         statusGroup.setVisibility(View.GONE);
-        stopButton.setVisibility(View.GONE);
+        editMessageIcon.setVisibility(View.GONE);
+        scheduledOn.setVisibility(View.GONE);
+        linearLayout.setVisibility(View.GONE);
+        updateMessage.setVisibility(View.GONE);
 
     }
 
@@ -369,15 +520,17 @@ public class SingleScheduledMessage extends AppCompatActivity {
         TextView message = findViewById(R.id.message);
         LinearLayout createdOn = findViewById(R.id.createdOnGroupId);
         LinearLayout repeatGroup = findViewById(R.id.reapeatGroupId);
+        LinearLayout scheduledOn = findViewById(R.id.scheduledOnGroupId);
         LinearLayout statusGroup = findViewById(R.id.statusGroupId);
-        Button stopButton = findViewById(R.id.stopMessageButtonId);
+        // Button stopButton = findViewById(R.id.stopMessageButtonId);
 
         message.setVisibility(View.VISIBLE);
         messageTitle.setVisibility(View.VISIBLE);
         createdOn.setVisibility(View.VISIBLE);
         repeatGroup.setVisibility(View.VISIBLE);
         statusGroup.setVisibility(View.VISIBLE);
-        stopButton.setVisibility(View.VISIBLE);
+        if (remainingOccurrence > -1) editMessageIcon.setVisibility(View.VISIBLE);
+        if (occurrence == 0) scheduledOn.setVisibility(View.VISIBLE);
     }
 
     public String[] getPhoneNumbers() {
@@ -387,4 +540,47 @@ public class SingleScheduledMessage extends AppCompatActivity {
     public Integer getId() {
         return id;
     }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+        setStatus();
+    }
+
+    public void setTitle(String title) {
+        item.setTitle(title);
+    }
+
+    public void editMessage(View view) {
+        view.setVisibility(View.GONE);
+        linearLayout.setVisibility(View.VISIBLE);
+        updateMessage.setVisibility(View.VISIBLE);
+        messageBody.setVisibility(View.GONE);
+        messageTitle.setVisibility(View.GONE);
+        editTextMessage.setText(messageBody.getText());
+    }
+
+    public void cancelUpdate(View view) {
+        displayDefaultHomeView();
+    }
+
+    public void saveUpdate(View view) {
+        String message = editTextMessage.getText().toString();
+
+        if (message.trim().equals("")) {
+            Toast toast = Toast.makeText(this, "Message can not be empty", Toast.LENGTH_SHORT);
+        } else {
+            new UpdateMessageAsyncTask(this, false).execute(Integer.toString(id), editTextMessage.getText().toString());
+            displayDefaultHomeView();
+            messageBody.setText(message);
+        }
+    }
+
+    public void displayDefaultHomeView() {
+        editMessageIcon.setVisibility(View.VISIBLE);
+        messageTitle.setVisibility(View.VISIBLE);
+        messageBody.setVisibility(View.VISIBLE);
+        linearLayout.setVisibility(View.GONE);
+        updateMessage.setVisibility(View.GONE);
+    }
+
 }

@@ -18,6 +18,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -47,11 +48,14 @@ public class ContactListActivity extends AppCompatActivity {
     private TextView defaultResultTextView;
     private RecyclerView recyclerView;
     private RecyclerView recyclerViewResult;
+    private FloatingActionButton fab;
+    private String[] phoneNumbers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_contact_view);
         recyclerViewResult = (RecyclerView) findViewById(R.id.recycler_contact_view_result);
@@ -59,6 +63,7 @@ public class ContactListActivity extends AppCompatActivity {
         final EditText editText = findViewById(R.id.searchContactId);
         loadingTextView = findViewById(R.id.loadingContactsText);
         defaultResultTextView = findViewById(R.id.defaultResultText);
+        fab = findViewById(R.id.fab);
         unKnows = new ArrayList<>();
 
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +113,13 @@ public class ContactListActivity extends AppCompatActivity {
 
         contactsResult = new ArrayList<>();
 
-        new AllContactsAsyncTask(this, recyclerView, recyclerViewResult, loadingTextView).execute();
+        Intent intent = getIntent();
+        if (intent.hasExtra("phoneNumbers")) {
+            phoneNumbers = intent.getStringArrayExtra("phoneNumbers");
+            new AllContactsAsyncTask(this, recyclerView, recyclerViewResult, loadingTextView, true).execute();
+        } else {
+            new AllContactsAsyncTask(this, recyclerView, recyclerViewResult, loadingTextView, false).execute();
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -133,6 +144,18 @@ public class ContactListActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     public void setContactList(List<Contact> contacts) {
         this.allContacts = contacts;
@@ -173,8 +196,10 @@ public class ContactListActivity extends AppCompatActivity {
                 }
                 if (contactsResult.size() == 0) {
                     defaultResultTextView.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.GONE);
                 } else {
                     defaultResultTextView.setVisibility(View.GONE);
+                    fab.setVisibility(View.VISIBLE);
                 }
                 displaySelectedContacts();
             }
@@ -246,11 +271,43 @@ public class ContactListActivity extends AppCompatActivity {
      */
     public boolean isUnknownExist(Contact contact) {
         for (int i = 0; i < unKnows.size(); i++) {
-            Log.d("HOME_PHONE", unKnows.get(i).getPhoneNumber());
             if (unKnows.get(i).getPhoneNumber().equals(contact.getPhoneNumber())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public List<Contact> getContacts(List<Contact> contacts) {
+      //  List<String> notFounds = new ArrayList<>(); // Contains numbers that are not found in the user contacts;
+
+        for (int i = 0; i < phoneNumbers.length; i++) {
+            String phoneNumber = phoneNumbers[i];
+            boolean isExist = false;
+            for (int counter = 0; counter < contacts.size(); counter++) {
+                Contact contact = contacts.get(counter);
+                if (contact.getPhoneNumber().equals(phoneNumber)) {
+                    contact.setChecked(true);
+                    contactsResult.add(contact);
+                    isExist = true;
+                    break;
+                }
+            }
+            if (!isExist) {
+                Contact newContact = new Contact(phoneNumber, "null", "Unknown");
+                newContact.setChecked(true);
+                contacts.add(newContact);
+                contactsResult.add(newContact);
+            }
+        }
+        return contacts;
+    }
+
+    public List<Contact> getContactsResult() {
+        if (contactsResult.size() > 0) {
+            defaultResultTextView.setVisibility(View.GONE);
+            fab.setVisibility(View.VISIBLE);
+        }
+        return contactsResult;
     }
 }

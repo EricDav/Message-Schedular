@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.andeladeveloper.messageschedular.ScheduleMessage;
 
@@ -479,6 +480,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<ScheduledMessage>getAllScheduledMessages(String sortType) {
         List<ScheduledMessage> scheduledMessages = new ArrayList<>();
+
         // Select All Query
         String selectQuery = "SELECT  * FROM " + ScheduledMessage.TABLE_NAME + " ORDER BY " +
                 ScheduledMessage.COLUMN_TIMESTAMP + " " + sortType;
@@ -512,5 +514,113 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return scheduledMessages;
+    }
+
+    /**
+     *It deletes a scheduled message and all its collections if it has.
+     *
+     * @param id the id of the of the scheduled message.
+     * @param occurrence the occurrences of the message.
+     *
+     * @return returns the number of rows deleted.
+     */
+    public int deleteScheduledMessage(Integer id, Integer occurrence) {
+        SQLiteDatabase db = getWritableDatabase();
+        Integer numRowAffected = db.delete(ScheduledMessage.TABLE_NAME, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
+
+        if (occurrence > 0 && numRowAffected == 1) {
+            numRowAffected = db.delete(MessageCollections.TABLE_NAME, MessageCollections.COLLECTION_ID + "=" + id.toString(), null);
+        }
+        db.close();
+
+        return numRowAffected;
+
+    }
+
+    public int deleteMessageCollection(Integer id) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        Integer numOfRowDeleted = db.delete(MessageCollections.TABLE_NAME, MessageCollections.COLUMN_ID + "="  + id.toString(), null);
+
+        db.close();
+
+        return numOfRowDeleted;
+    }
+
+    /**
+     * It toggles the status of a scheduled message for stopped to restored and vice versa.
+     *
+     * @param id the id of the scheduled message to be stopped.
+     * @return
+     */
+    public int toggleScheduledMessageStatus(Integer id, int status) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        if (status == 0) {
+            values.put(ScheduledMessage.COLUMN_STATUS, 1);
+        } else {
+            values.put(ScheduledMessage.COLUMN_STATUS, 0);
+        }
+
+        int numOfRowsAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
+
+        db.close();
+
+        return numOfRowsAffected;
+    }
+
+    /**
+     * It updates the contacts of a scheduled message.
+     *
+     * @param id the id of the Schedule message in which the contacts is to be updated.
+     * @param contacts the updated contacts
+     *
+     * @return
+     */
+    public int updateScheduledContacts(Integer id, String[] contacts) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        String phoneNumbers = contacts[0];
+        String phoneNames = contacts[1];
+        String phonePhotUri = contacts[2];
+
+        values.put(ScheduledMessage.COLUMN_PHONE_NUMBER, phoneNumbers);
+        values.put(ScheduledMessage.COLUMN_PHONE_NAME, phoneNames);
+        values.put(ScheduledMessage.COLUMN_PHONE_PHOTO_URI, phonePhotUri);
+
+        int numOfRowsAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
+
+        db.close();
+
+        return numOfRowsAffected;
+
+    }
+
+    /**
+     * It updates the messages of a scheduled message.
+     *
+     * @param id the id of the Schedule message in which the contacts is to be updated.
+     * @param message the updated message.
+     *
+     * @return
+     */
+    public int updateScheduleMessage(Integer id, String message) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(ScheduledMessage.COLUMN_MESSAGE, message);
+        ScheduledMessage scheduledMessage = getScheduledMessage(id);
+        if (scheduledMessage.getRemainingOccurrence() < 0 ) {
+            db.close();
+            return -2;
+        }
+
+        int numOfRowsAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
+
+        db.close();
+
+        return numOfRowsAffected;
     }
 }
