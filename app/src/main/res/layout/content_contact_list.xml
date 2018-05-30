@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.andeladeveloper.messageschedular.ContactListActivity"
+    tools:context="com.example.andeladeveloper.messageschedular.Activities.ContactListActivity"
     tools:showIn="@layout/activity_contact_list">
         <EditText
             android:id="@+id/searchContactId"
@@ -16,8 +16,8 @@
             android:textColor="#000"
             android:hint="To"
             android:inputType="text"
-            android:backgroundTint="@android:color/holo_red_light"
-            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:layout_marginLeft="8dp"
             />
                 <ImageView
                     android:id="@+id/clearImageViewId"
@@ -32,7 +32,7 @@
                 android:id="@+id/defaultResultText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:layout_marginTop="15dp"
                 android:layout_gravity="center"
                 android:text="Enter a number or tap a contact to add to group"
@@ -42,7 +42,7 @@
             android:id="@+id/recycler_contact_view_result"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_marginTop="15dp"
             android:layout_alignParentTop="true"
             android:scrollbars="horizontal"

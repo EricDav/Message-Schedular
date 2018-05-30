@@ -19,10 +19,14 @@ public class UpdateMessageAsyncTask extends AsyncTask<String, Void, Integer> {
     private DatabaseHelper db;
     private  Context context;
     private boolean isCollection;
-    public UpdateMessageAsyncTask(Context context, boolean isCollection) {
+    private TextView messageBody;
+    private String oldMessage;
+    public UpdateMessageAsyncTask(Context context, boolean isCollection, TextView messageBody, String oldMessage) {
         db = new DatabaseHelper(context);
         this.context = context;
         this.isCollection = isCollection;
+        this.messageBody = messageBody;
+        this.oldMessage =oldMessage;
     }
 
     protected void onProgressUpdate(Integer... progress) {
@@ -34,6 +38,8 @@ public class UpdateMessageAsyncTask extends AsyncTask<String, Void, Integer> {
     protected Integer doInBackground(String...params) {
         Integer id = Integer.parseInt(params[0]);
         String message = params[1];
+
+        // db.getAllMessageCollectionsByCollectionId(9);
 
         if (isCollection) {
             return db.updateMessageCollectionById(id, message);
@@ -47,7 +53,8 @@ public class UpdateMessageAsyncTask extends AsyncTask<String, Void, Integer> {
             Toast toast = Toast.makeText(context, "An error occurred could not save message", Toast.LENGTH_SHORT);
             toast.show();
         } else if(result == -2) {
-            Toast toast = Toast.makeText(context, "Can't update message that has already benn sent", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, "Can't update message that has already been sent", Toast.LENGTH_SHORT);
+            messageBody.setText(oldMessage);
             toast.show();
         } else {
             Toast toast = Toast.makeText(context, "Massage saved successfully", Toast.LENGTH_SHORT);

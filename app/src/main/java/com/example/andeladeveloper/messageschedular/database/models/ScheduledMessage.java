@@ -167,8 +167,10 @@ public class ScheduledMessage {
         } else if (status == 2) {
             return "Processed";
         }
-        else  {
+        else if (status == 3)  {
             return "Canceled";
+        } else {
+            return "Missed";
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
@@ -20,15 +21,17 @@
             android:id="@+id/notificationId"
             android:icon="@drawable/ic_notifications_black_24dp"
             android:actionLayout="@layout/collection"
-            android:title="Notifications" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
+            android:title="Notifications"
+            app:actionLayout="@layout/manu_counter"
+            />
         <item
             android:id="@+id/feedback"
             android:icon="@drawable/ic_feedback_black_24dp"
             android:title="Feedback" />
+        <item
+            android:id="@+id/about"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="About Message Scheduler" />
         <item
             android:id="@+id/exit"
             android:icon="@drawable/ic_exit_to_app_black_24dp"

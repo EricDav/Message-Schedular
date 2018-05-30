@@ -59,8 +59,10 @@ public class ExpiredCollectionFragment extends Fragment {
                 intent.putExtra("message", messageCollection.getMessage());
                 intent.putExtra("position", messageCollection.getPosition());
                 intent.putExtra("status", messageCollection.getStatus());
+                intent.putExtra("id", messageCollection.getId());
                 intent.putExtra("tag", 1);
                 intent.putExtra("phoneNumbers", ((SingleScheduledMessage) getActivity()).getPhoneNumbers());
+                intent.putExtra("names", ((SingleScheduledMessage) getActivity()).getNames());
                 intent.putExtra("collectionId", ((SingleScheduledMessage) getActivity()).getId());
                 startActivity(intent);
             }

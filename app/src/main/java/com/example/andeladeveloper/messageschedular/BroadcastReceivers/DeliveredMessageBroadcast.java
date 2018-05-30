@@ -1,4 +1,4 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.BroadcastReceivers;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -26,13 +26,9 @@ public class DeliveredMessageBroadcast extends BroadcastReceiver {
         // TODO Auto-generated method stub
         switch(getResultCode()) {
             case Activity.RESULT_OK:
-                Log.d("DELIVERED", "It was delivered successfully");
-                Toast.makeText(context, "SMS Delivered", Toast.LENGTH_SHORT).show();
                 db.updatePhoneNumberDetailStatus(collectionId, position , phoneNumber, "Delivered");
                 break;
             case Activity.RESULT_CANCELED:
-                Log.d("RESULT_CANCELED", "It was cancelled");
-                Toast.makeText(context, "SMS not delivered", Toast.LENGTH_SHORT).show();
                 db.updatePhoneNumberDetailStatus(collectionId, position , phoneNumber, "Sent but was cancelled");
                 break;
         }

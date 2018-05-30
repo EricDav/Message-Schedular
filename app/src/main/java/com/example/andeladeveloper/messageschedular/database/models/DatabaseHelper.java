@@ -3,9 +3,9 @@ package com.example.andeladeveloper.messageschedular.database.models;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.andeladeveloper.messageschedular.ScheduleMessage;
 
@@ -23,7 +23,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "messages_db";
 
-
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -38,6 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(MessageCollections.CREATE_TABLE);
         db.execSQL(ScheduledMessage.CREATE_TABLE);
         db.execSQL(PhoneNumberDetails.CREATE_TABLE);
+        db.execSQL(Notifications.CREATE_TABLE);
     }
 
     @Override
@@ -47,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ScheduledMessage.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MessageCollections.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + PhoneNumberDetails.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Notifications.TABLE_NAME);
 
         // Create tables again
         onCreate(db);
@@ -57,19 +58,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ScheduledMessage.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MessageCollections.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + PhoneNumberDetails.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Notifications.TABLE_NAME);
         db.execSQL(ScheduledMessage.CREATE_TABLE);
         db.execSQL(MessageCollections.CREATE_TABLE);
         db.execSQL(PhoneNumberDetails.CREATE_TABLE);
-    }
-
-    public void createSentMessageTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL(MessageCollections.CREATE_TABLE);
-    }
-
-    public void createPhoneNumberTable() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL(PhoneNumberDetails.CREATE_TABLE);
+        db.execSQL(Notifications.CREATE_TABLE);
     }
 
     public long insertMessage(String message, String phoneNumber, String time, String startTime,
@@ -193,6 +186,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * It updates the status of a message collection
+     *
+     * @param status the updated status.
+     * @param id the id of the message collection.
+     * @return
+     */
+    public int updateMessageCollectionStatus(Integer status, Integer id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(MessageCollections.COLUMN_STATUS, status);
+
+        int update = db.update(MessageCollections.TABLE_NAME, values, MessageCollections.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+
+        db.close();
+
+        return update;
+    }
+
     public int updateMessageTime(String time, Integer id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -222,23 +236,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return update;
     }
 
-    public long insertSentMessages(String message, String status, Integer collectionId, String time) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-
-        values.put(MessageCollections.COLUMN_MESSAGE, message);
-        values.put(MessageCollections.COLUMN_STATUS, status);
-        values.put(MessageCollections.COLLECTION_ID, collectionId);
-        values.put(MessageCollections.COLUMN_TIME, time);
-
-        long id = db.insert(MessageCollections.TABLE_NAME, null, values);
-
-        db.close();
-
-        return id;
-    }
-
     public ScheduledMessage getScheduledMessage(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -250,28 +247,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             cursor.moveToFirst();
         }
-        ScheduledMessage scheduledMessage =
-                new ScheduledMessage(
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_ID)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_MESSAGE)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NUMBER)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NAME)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_PHOTO_URI)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIME)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_START_TIME)),
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_INTERVAL)),
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_OCCURRENCE)),
-                        cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_DURATION)),
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_STATUS)),
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_REMAINING_OCCURRENCE)),
-                        cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_IS_STOPPED))
-                     );
 
-        scheduledMessage.setTimestamp(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIMESTAMP)));
+        try {
+            ScheduledMessage scheduledMessage =
+                    new ScheduledMessage(
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_ID)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_MESSAGE)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NUMBER)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_NAME)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_PHONE_PHOTO_URI)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIME)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_START_TIME)),
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_INTERVAL)),
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_OCCURRENCE)),
+                            cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_DURATION)),
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_STATUS)),
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_REMAINING_OCCURRENCE)),
+                            cursor.getInt(cursor.getColumnIndex(ScheduledMessage.COLUMN_IS_STOPPED))
+                    );
 
-        cursor.close();
+            scheduledMessage.setTimestamp(cursor.getString(cursor.getColumnIndex(ScheduledMessage.COLUMN_TIMESTAMP)));
 
-        return scheduledMessage;
+            cursor.close();
+            return scheduledMessage;
+        } catch (CursorIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     /**
@@ -311,6 +314,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return 0;
     }
+    public MessageCollections getMessageCollection(Integer collectionId, Integer position) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        MessageCollections messageCollections = new MessageCollections();
+
+        String selectQuery = "SELECT * FROM " + MessageCollections.TABLE_NAME + " WHERE " + MessageCollections.COLLECTION_ID + "="
+                + collectionId.toString() +  " AND " + MessageCollections.COLUMN_POSITION + "=" + position.toString();
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                messageCollections.setId(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_ID)));
+                messageCollections.setMessage(cursor.getString(cursor.getColumnIndex(MessageCollections.COLUMN_MESSAGE)));
+                messageCollections.setTime(cursor.getString(cursor.getColumnIndex(MessageCollections.COLUMN_TIME)));
+                messageCollections.setCollectionId(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLLECTION_ID)));
+                messageCollections.setPosition(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_POSITION)));
+                messageCollections.setStatus(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_STATUS)));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return messageCollections;
+    }
+
+    public MessageCollections getMessageCollection(Integer id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        MessageCollections messageCollections = new MessageCollections();
+
+        String selectQuery = "SELECT * FROM " + MessageCollections.TABLE_NAME + " WHERE " + MessageCollections.COLUMN_ID + "="
+                + id.toString();
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                messageCollections.setId(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_ID)));
+                messageCollections.setMessage(cursor.getString(cursor.getColumnIndex(MessageCollections.COLUMN_MESSAGE)));
+                messageCollections.setTime(cursor.getString(cursor.getColumnIndex(MessageCollections.COLUMN_TIME)));
+                messageCollections.setCollectionId(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLLECTION_ID)));
+                messageCollections.setPosition(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_POSITION)));
+                messageCollections.setStatus(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_STATUS)));
+            } while (cursor.moveToNext());
+        }
+
+        db.close();
+        cursor.close();
+
+        return messageCollections;
+    }
+
 
 
     /**
@@ -388,6 +443,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         db.close();
+        cursor.close();
 
         return phoneNumberDetails;
 
@@ -430,6 +486,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      *
      */
     public int updateMessageCollectionById(Integer id, String message) {
+        if (getMessageCollection(id).getStatus() > 1) {
+            return -2;
+        }
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -465,7 +524,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
 
         }
-        db.close();
+        cursor.close();
 
         return messageCollections;
     }
@@ -570,6 +629,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return numOfRowsAffected;
     }
 
+
     /**
      * It updates the contacts of a scheduled message.
      *
@@ -580,6 +640,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public int updateScheduledContacts(Integer id, String[] contacts) {
         SQLiteDatabase db = getWritableDatabase();
+        ScheduledMessage scheduledMessage = getScheduledMessage(id);
+
+        if (scheduledMessage.getRemainingOccurrence() < 0) {
+            db.close();
+            return -2;
+        }
         ContentValues values = new ContentValues();
 
         String phoneNumbers = contacts[0];
@@ -608,19 +674,97 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      */
     public int updateScheduleMessage(Integer id, String message) {
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(ScheduledMessage.COLUMN_MESSAGE, message);
         ScheduledMessage scheduledMessage = getScheduledMessage(id);
+
+        ContentValues values = new ContentValues();
+        values.put(ScheduledMessage.COLUMN_MESSAGE, message);
+
         if (scheduledMessage.getRemainingOccurrence() < 0 ) {
             db.close();
             return -2;
+        } else if (scheduledMessage.getOccurrence() > 1) {
+            List<MessageCollections> messageCollections = getAllMessageCollectionsByCollectionId(scheduledMessage.getId());
+
+            for (int i = 0; i < messageCollections.size(); i++) {
+                MessageCollections messageCollection = messageCollections.get(i);
+                if (messageCollection.getStatus() < 2) {
+                    db.update(MessageCollections.TABLE_NAME, values,
+                            MessageCollections.COLUMN_ID + "=" + messageCollection.getId().toString(),null);
+                }
+            }
+
         }
 
-        int numOfRowsAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
+        int rowAffected = db.update(ScheduledMessage.TABLE_NAME, values, ScheduledMessage.COLUMN_ID + "=" + id.toString(), null);
 
         db.close();
 
-        return numOfRowsAffected;
+        return rowAffected;
+
+    }
+
+    /**
+     * This method creates a notification for unsent messages.
+     *
+     * @param message The default message to be inserted in all Messages in collections
+     * @param collectionId The collection id
+     * @param time The time in which the message was suppose to be sent.
+     * @param position the position of the message if it is part of a collection.
+     *
+     * @return Void
+     */
+    public void insertNotification(String message, int collectionId, String time, int position, int read) {
+        // get writable database as we want to write data
+        SQLiteDatabase db = this.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+
+            values.put(Notifications.COLUMN_MESSAGE, message);
+            values.put(Notifications.COLLECTION_ID, collectionId);
+            values.put(Notifications.COLUMN_POSITION, position);
+            values.put(Notifications.COLUMN_TIME, time);
+            values.put(Notifications.COLUMN_READ, read);
+
+            db.insert(Notifications.TABLE_NAME, null, values);
+            db.close();
+        }
+
+    public List<Notifications> getAllNotifications() {
+        List<Notifications> notifications = new ArrayList<>();
+        String selectQuery = "SELECT  * FROM " + Notifications.TABLE_NAME + " ORDER BY " +
+                ScheduledMessage.COLUMN_TIMESTAMP + " DESC";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Notifications notification = new Notifications();
+
+                notification.setId(cursor.getInt(cursor.getColumnIndex(Notifications.COLUMN_ID)));
+                notification.setMessage(cursor.getString(cursor.getColumnIndex(Notifications.COLUMN_MESSAGE)));
+                notification.setTime(cursor.getString(cursor.getColumnIndex(Notifications.COLUMN_TIME)));
+                notification.setPosition(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLUMN_POSITION)));
+                notification.setCollectionId(cursor.getInt(cursor.getColumnIndex(MessageCollections.COLLECTION_ID)));
+                notification.setRead(cursor.getInt(cursor.getColumnIndex(Notifications.COLUMN_READ)));
+
+                notifications.add(notification);
+            } while (cursor.moveToNext());
+
+        }
+
+        db.close();
+        return notifications;
+
+    }
+    public int updateReadNotification(Integer id) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(Notifications.COLUMN_READ, 1);
+
+        int numOfRows = db.update(Notifications.TABLE_NAME, values, Notifications.COLUMN_ID + "=" + id.toString(), null);
+
+        return numOfRows;
     }
 }

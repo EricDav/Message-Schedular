@@ -74,8 +74,10 @@ public class MessageCollections {
                 return "Stopped";
             } else if (status == 2) {
                 return "Processed";
-            } else {
+            } else if (status == 3) {
                 return "Cancelled";
+            } else {
+                return "Missed";
             }
     }
 

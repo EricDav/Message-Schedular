@@ -1,4 +1,4 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.adapters.ContactsAdapter;
 import com.example.andeladeveloper.messageschedular.adapters.ContactsResultAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.AllContactsAsyncTask;
@@ -126,11 +127,13 @@ public class ContactListActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String phoneNumbers = "";
+                String displayPhoneNumbers = "";
                 String phoneName = "";
                 String phoneUri  = "";
                 for (int i=0; i < contactsResult.size(); i++) {
                     Contact contactResult = contactsResult.get(i);
                     phoneNumbers = i == 0 ? contactResult.getPhoneNumber() : phoneNumbers + "," + contactResult.getPhoneNumber();
+                    displayPhoneNumbers = i == 0 ? contactResult.getPhoneNumber() : displayPhoneNumbers + ",  " + contactResult.getPhoneNumber();
                     phoneName = i == 0 ? contactResult.getPhoneName() : phoneName + "," + contactResult.getPhoneName();
                     phoneUri = i == 0 ? contactResult.getPhotoUri() : phoneUri + "," + contactResult.getPhotoUri();
                 }
@@ -139,6 +142,7 @@ public class ContactListActivity extends AppCompatActivity {
                 intent.putExtra("phoneNumbers", phoneNumbers);
                 intent.putExtra("phonePhotoUris", phoneUri);
                 intent.putExtra("phoneNames", phoneName);
+                intent.putExtra("displayPhoneNumbers", displayPhoneNumbers);
                 setResult(RESULT_OK, intent);
                 finish();
             }

@@ -16,10 +16,4 @@
             android:orderInCategory="100"
             android:title="@string/sort_oldest"
             app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_favorite"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:title="@string/sort_newest"
-        app:showAsAction="ifRoom"/>
 </menu>

@@ -12,10 +12,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.andeladeveloper.messageschedular.ContactListActivity;
+import com.example.andeladeveloper.messageschedular.Activities.ContactListActivity;
 import com.example.andeladeveloper.messageschedular.adapters.ContactsAdapter;
 import com.example.andeladeveloper.messageschedular.adapters.ContactsResultAdapter;
-import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
 import com.example.andeladeveloper.messageschedular.database.models.Contact;
 
 import java.util.ArrayList;

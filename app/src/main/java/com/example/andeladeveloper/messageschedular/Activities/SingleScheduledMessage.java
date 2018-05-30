@@ -1,15 +1,9 @@
 package com.example.andeladeveloper.messageschedular.Activities;
 
-import android.app.ActionBar;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.content.ClipData;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TextInputLayout;
@@ -17,30 +11,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity;
-import com.example.andeladeveloper.messageschedular.ContactListActivity;
 import com.example.andeladeveloper.messageschedular.Fragments.PendingCollectionFragment;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.adapters.CollectionMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
-import com.example.andeladeveloper.messageschedular.asynctasks.DeleteScheduledMessageAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.SendSmsAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.ToggleScheduleMessageStatusAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.UpdateMessageAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.UpdateScheduleContactsAsyncTask;
@@ -48,7 +37,7 @@ import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelp
 import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.PhoneNumberDetails;
 import com.example.andeladeveloper.messageschedular.dialogs.ConfirmDeleteScheduledMessageDialog;
-import com.example.andeladeveloper.messageschedular.dialogs.MaximumContactsDialog;
+import com.example.andeladeveloper.messageschedular.dialogs.SendInstantSmsDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,15 +56,18 @@ public class SingleScheduledMessage extends AppCompatActivity {
     private Integer occurrence;
     private Integer remainingOccurrence;
     private Integer status;
-    private String[] phoneNumbers;
-    String[] photoUri;
-    String[] names;
+    public String[] phoneNumbers;
+    public String[] photoUri;
+    public String[] names;
     private TextView statusTextView;
     private TextInputLayout updateMessage;
     private LinearLayout linearLayout;
     private DatabaseHelper db;
     private Integer id;
+    private String message;
+    private boolean notification;
     private MenuItem item;
+    MenuItem sendMenu;
     private Intent intent;
     public static final int REQUEST_CODE = 1;
 
@@ -124,32 +116,50 @@ public class SingleScheduledMessage extends AppCompatActivity {
         id = intent.getIntExtra("id", 1);
 
         db = new DatabaseHelper(this);
+
         messageCollections = db.getAllMessageCollectionsByCollectionId(id);
+
+        phoneNumbers = intent.getStringExtra("phoneNumbers").split(",");
+        names = intent.getStringExtra("names").split(",");
+
+        if (intent.hasExtra("notification") && intent.getIntExtra("position", 0) > 0) {
+            notification = intent.getBooleanExtra("notification", false);
+
+            MessageCollections messageCollection = getMessageCollection(intent.getIntExtra("position", 0));
+            Intent intent = new Intent(this, SingleCollectionActivity.class);
+
+            intent.putExtra("message", messageCollection.getMessage());
+            intent.putExtra("position", messageCollection.getPosition());
+            intent.putExtra("status", messageCollection.getStatus());
+            intent.putExtra("tag", 1);
+            intent.putExtra("names", names);
+            intent.putExtra("phoneNumbers", getPhoneNumbers());
+            intent.putExtra("collectionId", getId());
+            intent.putExtra("id", messageCollection.getId());
+            startActivity(intent);
+        }
         setContentView(R.layout.activity_single_scheduled_message);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_single_page);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
 
         setStatusBarColor();
         View pendingFragment = findViewById(R.id.pendingCollectionFragmentId);
         View expiredFragment = findViewById(R.id.expiredCollectionFragmentId);
         photoUri = intent.getStringExtra("photoUri").split(",");
-        names = intent.getStringExtra("names").split(",");
 
         pendingFragment.setVisibility(View.GONE);
         expiredFragment.setVisibility(View.GONE);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        String message  =    intent.getStringExtra("message");
+        message  =    intent.getStringExtra("message");
         occurrence = intent.getIntExtra("occurrence", 0);
         remainingOccurrence = intent.getIntExtra("remainingOccurrences", 1);
         status = intent.getIntExtra("status", 0);
         String time = intent.getStringExtra("time");
         String[] duration = intent.getStringExtra("duration").split(",");
         Integer interval = intent.getIntExtra("interval", 0);
-        phoneNumbers = intent.getStringExtra("phoneNumbers").split(",");
 
         statusTextView = findViewById(R.id.statusValueId);
         linearLayout = findViewById(R.id.updateButtonId);
@@ -168,6 +178,11 @@ public class SingleScheduledMessage extends AppCompatActivity {
         TextView repeat = findViewById(R.id.repeatValueId);
         LinearLayout deliveredLinearLayout = findViewById(R.id.scheduledOnGroupId);
         TextView scheduledAt = findViewById(R.id.scheduledAtId);
+        if (occurrence > 0 ) {
+            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        } else {
+            navigation.setVisibility(View.GONE);
+        }
 
         if (occurrence == 0) {
             repeat.setText("No Repeat");
@@ -205,12 +220,9 @@ public class SingleScheduledMessage extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == 5) {
-            phoneNumbers = data.getStringExtra("phoneNumbers").split(",");
-            names = data.getStringExtra("phoneNames").split(",");
-            photoUri = data.getStringExtra("phonePhotoUris").split(",");
             String[] contacts = {data.getStringExtra("phoneNumbers"), data.getStringExtra("phoneNames"), data.getStringExtra("phonePhotoUris")};
-            new UpdateScheduleContactsAsyncTask(this, contacts).execute(id);
-            setPhoneDetailsView();
+            new UpdateScheduleContactsAsyncTask(this, contacts, data).execute(id);
+
             } else if (resultCode == RESULT_OK) {
                 onActivityRequestResult(requestCode, resultCode, data, PendingCollectionFragment.class.getSimpleName());
             }
@@ -250,16 +262,20 @@ public class SingleScheduledMessage extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.single_page_main, menu);
-        Log.d("REMAINING", remainingOccurrence.toString());
 
-        if (remainingOccurrence < 0) {
+        if (status != 4) {
+            menu.getItem(1).setVisible(false);
+        } else {
+            sendMenu = menu.getItem(1);
+        }
+        if (remainingOccurrence < 0 || (occurrence == 0 && status > 1 )) { // this checks if a single message has expired or all the messages in a collection has expired.
             for (int i = 0; i < menu.size(); i++) {
-                if (i != 0) {
+                if (i > 1) {
                     menu.getItem(i).setVisible(false);
                 }
             }
         } else {
-            MenuItem item = menu.getItem(2);
+            MenuItem item = menu.getItem(3);
             if (status == 1) {
                 item.setTitle("Restore");
             }
@@ -272,7 +288,11 @@ public class SingleScheduledMessage extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                if (notification) {
+                    finish();
+                } else {
+                    NavUtils.navigateUpFromSameTask(this);
+                }
 
                 return true;
             case R.id.stop:
@@ -302,20 +322,33 @@ public class SingleScheduledMessage extends AppCompatActivity {
                 return true;
             case R.id.edit_contacts:
                 Intent intent = new Intent(this, ContactListActivity.class);
-                Log.d("PHONENUMBER_PASS", Integer.toString(phoneNumbers.length));
                 intent.putExtra("phoneNumbers", phoneNumbers);
                 startActivityForResult(intent, 5);
+            case R.id.send:
+                if (status == 4) {
+                    DialogFragment dialogFragment = new SendInstantSmsDialog();
+                    Bundle dataBundle = new Bundle();
+                    dataBundle.putBoolean("isSingleSchedule", true);
+                    dialogFragment.setArguments(dataBundle);
+                    dialogFragment.show(getFragmentManager(), "sendFromSingleSchedule");
+                }
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void sendMessage() {
+        Toast.makeText(this, "Sending...", Toast.LENGTH_SHORT).show();
+        new SendSmsAsyncTask(message, phoneNumbers, 0, id, names, this).execute(id, 1);
+        sendMenu.setVisible(false);
+    }
+
 
     /**
      * Set the view that contains the images and the names of people that wants to receive the massage
      *
      */
     public void setPhoneDetailsView() {
-
-        Log.d("LENGTH", Integer.toString(photoUri.length));
         LinearLayout imageLinearLayout = findViewById(R.id.imageLinearLayout);
         if(((LinearLayout) imageLinearLayout).getChildCount() > 0)
             ((LinearLayout) imageLinearLayout).removeAllViews();
@@ -341,7 +374,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
             }
 
             textView.setLayoutParams(textParams);
-            if (names[i].equals("Anonymous")) {
+            if (names[i].equals("Unknown")) {
                 textView.setText(phoneNumbers[i]);
             } else {
                 textView.setText(names[i]);
@@ -407,7 +440,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
         List<PhoneNumberDetails> phoneNumberDetails;
         TextView textView = findViewById(R.id.statusHeader);
 
-        if (phoneNumbers.length > 1 && status > 1) {
+        if (phoneNumbers.length > 1 && status == 2) {
             textView.setText("Report: ");
             TextView viewMore = findViewById(R.id.viewMore);
             viewMore.setVisibility(View.VISIBLE);
@@ -419,13 +452,29 @@ public class SingleScheduledMessage extends AppCompatActivity {
             statusTextView.setText("Stopped");
         } else if (status == 3 && occurrence == 0) {
             statusTextView.setText("Cancelled");
+            editMessageIcon.setVisibility(View.GONE);
+        } else if (status == 4 && occurrence == 0) {
+            statusTextView.setText("Missed");
+            editMessageIcon.setVisibility(View.GONE);
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length == 1) {
              new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (status == 2 && occurrence == 0 && phoneNumbers.length > 1) {
             new CollectionAsyncTask(this, statusTextView).execute(id, remainingOccurrence - occurrence + 1);
         } else if (occurrence > 0) {
             Integer[] statusCount = statusCount();
-            String numStatus = statusCount[0].toString() + " expired and " + statusCount[1] + " pending";
+
+            int expired = statusCount[0];
+            int pending = statusCount[1];
+            String numStatus;
+
+            if (expired == 0) {
+                numStatus = statusCount[1] + " pending";
+            } else if (pending == 0) {
+                numStatus = statusCount[1] + " expired";
+            } else {
+                numStatus = statusCount[0].toString() + " expired and " + statusCount[1] + " pending";
+            }
+
             statusTextView.setText(numStatus);
         }
     }
@@ -463,7 +512,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
         List<MessageCollections> expiredMessageCollections = new ArrayList<>();
 
         for (int i = 0; i < messageCollections.size(); i++) {
-            if (messageCollections.get(i).getStatus() == 2 || messageCollections.get(i).getStatus() == 3) {
+            if (messageCollections.get(i).getStatus() > 1) {
                 expiredMessageCollections.add(messageCollections.get(i));
             }
         }
@@ -478,7 +527,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
         Integer pending = 0;
 
         for (int i = 0; i < messageCollections.size(); i++) {
-            if (messageCollections.get(i).getStatus() == 2 || messageCollections.get(i).getStatus() == 3) {
+            if (messageCollections.get(i).getStatus() > 1) {
                 expired +=1;
             } else {
                 pending +=1;
@@ -546,6 +595,10 @@ public class SingleScheduledMessage extends AppCompatActivity {
         setStatus();
     }
 
+    public String[] getNames() {
+        return names;
+    }
+
     public void setTitle(String title) {
         item.setTitle(title);
     }
@@ -569,7 +622,7 @@ public class SingleScheduledMessage extends AppCompatActivity {
         if (message.trim().equals("")) {
             Toast toast = Toast.makeText(this, "Message can not be empty", Toast.LENGTH_SHORT);
         } else {
-            new UpdateMessageAsyncTask(this, false).execute(Integer.toString(id), editTextMessage.getText().toString());
+            new UpdateMessageAsyncTask(this, false, messageBody, message).execute(Integer.toString(id), editTextMessage.getText().toString());
             displayDefaultHomeView();
             messageBody.setText(message);
         }
@@ -583,4 +636,16 @@ public class SingleScheduledMessage extends AppCompatActivity {
         updateMessage.setVisibility(View.GONE);
     }
 
+    public void setMessageCollections(List<MessageCollections> messageCollections) {
+        this.messageCollections = messageCollections;
+    }
+
+    public MessageCollections getMessageCollection(int position) {
+        for (MessageCollections messageCollection: messageCollections) {
+            if (messageCollection.getPosition() == position) {
+                return messageCollection;
+            }
+        }
+        return null;
+    }
 }

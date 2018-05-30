@@ -8,9 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.andeladeveloper.messageschedular.Activities.MainActivity;
+import com.example.andeladeveloper.messageschedular.asynctasks.GetScheduleMessageAsyncTask;
 
 /**
- * Created by andeladeveloper on 11/04/2018.
+ * Created by David on 11/04/2018.
  */
 
 public class ConfirmationDialogFragment extends DialogFragment {
@@ -18,6 +19,9 @@ public class ConfirmationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        final int scheduledMessageId = ((int) getArguments().getLong("id"));
+
         builder.setMessage("Congratulations! Your message has been scheduled successfully.")
                 .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -27,7 +31,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
                 })
                 .setNegativeButton("View", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
+                       new GetScheduleMessageAsyncTask(getActivity(), false, false).execute(scheduledMessageId);
                     }
                 });
         // Create the AlertDialog object and return it

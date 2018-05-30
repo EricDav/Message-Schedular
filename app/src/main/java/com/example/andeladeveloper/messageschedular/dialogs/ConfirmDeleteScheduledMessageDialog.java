@@ -68,10 +68,6 @@ public class ConfirmDeleteScheduledMessageDialog extends DialogFragment {
         // Create the AlertDialog object and return it
         return builder.create();
     }
-//
-//    public void showLoader() {
-//        progress.show();
-//    }
 
     public void dismissLoader() {
         progress.dismiss();

@@ -15,11 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.andeladeveloper.messageschedular.Activities.StatusDialogActivity;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.asynctasks.CollectionAsyncTask;
+import com.example.andeladeveloper.messageschedular.asynctasks.SendSmsAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.UpdateMessageAsyncTask;
 import com.example.andeladeveloper.messageschedular.dialogs.ConfirmDeleteScheduledMessageDialog;
+import com.example.andeladeveloper.messageschedular.dialogs.SendInstantSmsDialog;
 
 public class SingleCollectionActivity extends AppCompatActivity {
     TextView messageTextView;
@@ -28,9 +29,12 @@ public class SingleCollectionActivity extends AppCompatActivity {
     String initialMessage;
     ImageView saveImageIcon;
     ImageView editImageIcon;
+    ImageView sendImageIcon;
     Integer id;
     int collectionId;
     int position;
+    String[] phoneNumbers;
+    String[] names;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +47,10 @@ public class SingleCollectionActivity extends AppCompatActivity {
         int status = intent.getIntExtra("status", 0);
         position = intent.getIntExtra("position", 0);
         message = intent.getStringExtra("message");
+        phoneNumbers = intent.getStringArrayExtra("phoneNumbers");
+        names = intent.getStringArrayExtra("names");
+
         initialMessage = message;
-        String[] phoneNumbers = intent.getStringArrayExtra("phoneNumbers");
         collectionId = intent.getIntExtra("collectionId", 0);
         id = intent.getIntExtra("id", 1);
 
@@ -60,6 +66,7 @@ public class SingleCollectionActivity extends AppCompatActivity {
         editText = findViewById(R.id.messageEdit);
         editImageIcon = findViewById(R.id.editImage);
         saveImageIcon = findViewById(R.id.saveMessage);
+        sendImageIcon = findViewById(R.id.sendImage);
 
 
         messageTextView.setText(message);
@@ -67,13 +74,21 @@ public class SingleCollectionActivity extends AppCompatActivity {
         if (tag == 0) {
             if (status == 0) {
                 statusTextView.setText("Pending");
-            } else {
+            }  else {
                 statusTextView.setText("Stopped");
             }
         } else {
             editImageIcon.setVisibility(View.GONE);
-            new CollectionAsyncTask(this, statusTextView).execute(collectionId, position);
-            if (phoneNumbers.length > 1) {
+            if (status == 3) {
+                statusTextView.setText("Cancelled");
+            } else if (status == 4) {
+                statusTextView.setText("Missed");
+                sendImageIcon.setVisibility(View.VISIBLE);
+
+            } else {
+                new CollectionAsyncTask(this, statusTextView).execute(collectionId, position);
+            }
+            if (phoneNumbers.length > 1 && status == 2) {
                 viewMore.setVisibility(View.VISIBLE);
             }
         }
@@ -125,7 +140,6 @@ public class SingleCollectionActivity extends AppCompatActivity {
      */
     public void saveMessage(View view)  {
         String updatedMessage = editText.getText().toString();
-        Log.d("UPDATED_MESSAGE", updatedMessage);
         if (updatedMessage.equals(message)) {
             Toast toast = Toast.makeText(this, "You did not make any change", Toast.LENGTH_SHORT);
             toast.show();
@@ -133,7 +147,7 @@ public class SingleCollectionActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "Message can not be empty", Toast.LENGTH_SHORT);
             toast.show();
         } else {
-            new UpdateMessageAsyncTask(this, true).execute(id.toString(), updatedMessage);
+            new UpdateMessageAsyncTask(this, true, messageTextView, message).execute(id.toString(), updatedMessage);
 
             message = updatedMessage;
             view.setVisibility(View.GONE);
@@ -152,12 +166,26 @@ public class SingleCollectionActivity extends AppCompatActivity {
     }
 
    public void  dismissDialogOnDelete() {
-       Log.d("INSIDE_RESULT", "I am inside result bro!!!");
        Intent intent = new Intent();
        intent.putExtra("id", id);
        intent.putExtra("delete", true);
        setResult(RESULT_OK, intent);
        finish();
+   }
+
+   public void openConfirmationDialog(View view) {
+        DialogFragment dialogFragment = new SendInstantSmsDialog();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isSingleSchedule", false);
+        dialogFragment.setArguments(bundle);
+        dialogFragment.show(getFragmentManager(), "send");
+
+   }
+
+   public void sendMessage() {
+        Toast.makeText(this, "Sending...", Toast.LENGTH_SHORT);
+        new SendSmsAsyncTask(message, phoneNumbers, position, collectionId, names, this).execute(id, 1);
+        sendImageIcon.setVisibility(View.GONE);
    }
 
 }

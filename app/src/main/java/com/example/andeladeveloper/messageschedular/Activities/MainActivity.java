@@ -2,10 +2,12 @@ package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.DialogFragment;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -20,7 +22,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -32,20 +33,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.example.andeladeveloper.messageschedular.DeliveredMessageBroadcast;
+import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.RecyclerTouchListener;
 import com.example.andeladeveloper.messageschedular.ScheduleMessage;
-import com.example.andeladeveloper.messageschedular.SentMessageBroadcast;
 import com.example.andeladeveloper.messageschedular.adapters.ScheduleMessageAdapter;
 import com.example.andeladeveloper.messageschedular.asynctasks.AllScheduledMessagesAsyncTask;
 import com.example.andeladeveloper.messageschedular.asynctasks.GetScheduleMessageAsyncTask;
-import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
-import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
+import com.example.andeladeveloper.messageschedular.asynctasks.NotificationsAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
+import com.example.andeladeveloper.messageschedular.dialogs.MaximumContactsDialog;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.andeladeveloper.messageschedular.BroadcastReceivers.BootReciever.getNotifications;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private TextView emptyTextView;
     private ScheduleMessageAdapter messageAdapter;
+    public int scrollState;
     private List<ScheduledMessage> scheduledMessages;
 
 
@@ -65,13 +67,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DatabaseHelper db = new DatabaseHelper(this);
+        // db.dropTable();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        new NotificationsAsyncTask(this).execute();
 
         getPermissionToReadUserContacts();
-
-        Intent intent = getIntent();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        createNotificationChannel();
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         if(checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
@@ -92,19 +97,6 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
         }
 
-        DatabaseHelper db = new DatabaseHelper(this);
-
-     //    List<MessageCollections>  messageCollections = db.getAllMessageCollections();
-
-        // ScheduledMessage scheduleMessage = scheduleMessages.get(2);
-//        Log.d("HOME_my_work", Integer.toString(messageCollections.size()));
-//        for (int i = 0; i < messageCollections.size(); i++) {
-//            MessageCollections scheduleMessage = messageCollections.get(i);
-//            Log.d("PHONE_COLLECTION_ID", scheduleMessage.getCollectionId().toString());
-//            Log.d("PHONE_ID", scheduleMessage.getId().toString());
-//            Log.d("PHONE_MESSAGE", scheduleMessage.getMessage());
-//            Log.d("PHONE_POSITION", scheduleMessage.getPosition().toString());
-//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -115,30 +107,33 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        SentMessageBroadcast smsSentReceiver = new SentMessageBroadcast();
-        DeliveredMessageBroadcast smsDeliveredReceiver = new DeliveredMessageBroadcast();
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isRegister = sharedPref.getBoolean("register", false);
+        boolean isAlarmStart = sharedPref.getBoolean("isAlarmStart", true);
+        scrollState = sharedPref.getInt("scrollState", 0);
 
-        registerReceiver(smsSentReceiver, new IntentFilter("SMS_SENT"));
-        registerReceiver(smsDeliveredReceiver, new IntentFilter("SMS_DELIVERED"));
-
-        //checking if alarm is working with pendingIntent
-        Intent checkIntent = new Intent(this, ScheduleMessage.class);//the same as up
-        intent.setAction("SEND_MESSAGE");//the same as up
-        boolean isWorking = (PendingIntent.getBroadcast(this, 1001, checkIntent, PendingIntent.FLAG_NO_CREATE) != null);
-        if (!isWorking) {
-            Log.d("TEST_ALARM", "I AM NOT WORKING IF I APEAR TWICE");
+        if (isAlarmStart) {
+            getNotifications(this, db);
             startAlarm();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("isAlarmStart", false);
+            editor.apply();
         }
-     // db.dropTable();
+
+
+       // db.dropTable();
 
         setRecyclerViewLayout();
         emptyTextView = findViewById(R.id.emptyMainTextId);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt("scrollState", position);
+                editor.apply();
                 ScheduledMessage scheduledMessage = scheduledMessages.get(position);
 
-                new GetScheduleMessageAsyncTask(MainActivity.this).execute(scheduledMessage.getId());
+                new GetScheduleMessageAsyncTask(MainActivity.this, true, false).execute(scheduledMessage.getId());
             }
 
             @Override
@@ -147,7 +142,31 @@ public class MainActivity extends AppCompatActivity
             }
         }));
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                scrollState = dy;
+            }
+        });
+
         setMessagesOnActivity("DESC");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            displaySuccessDialog();
+        }
+    }
+
+    private void displaySuccessDialog() {
+        DialogFragment newFragment = new MaximumContactsDialog();
+        Bundle data = new Bundle();
+        data.putInt("feedback", 1);
+        data.putString("message", "Thank you for your feedback.");
+        newFragment.setArguments(data);
+        newFragment.show(getFragmentManager(), "missiles");
     }
 
 
@@ -160,7 +179,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         String lastViewedMessage = sharedPref.getString("messageCategory", "All");
-        Log.d("LAST_MESSAGE_CATEGORY", lastViewedMessage);
 
         if (lastViewedMessage.equals("single")) {
             setTitle("Non-Reoccurring Messages");
@@ -172,7 +190,6 @@ public class MainActivity extends AppCompatActivity
             setTitle("All Messages");
             new AllScheduledMessagesAsyncTask(this, recyclerView, emptyTextView).execute("all", sortType);
         }
-        Log.d("LAST_MESSAGE_CATEGORY", lastViewedMessage);
     }
 
     public void startAlarm() {
@@ -184,7 +201,6 @@ public class MainActivity extends AppCompatActivity
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, TIME_INTERVAL, oneMinute, pendingIntent);
     }
     private void getPermissionToReadUserContacts() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
                 requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
@@ -206,7 +222,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        Log.d("MENU_MAIN", "I GOT HERE OOOOOOO");
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -240,8 +255,17 @@ public class MainActivity extends AppCompatActivity
             setMessagesCollection("DESC");
         } else if (id == R.id.non_reoccurring) {
             setSingleMessages("DESC");
-        } else if (id == R.id.nav_manage) {
-
+        } else if (id == R.id.notificationId) {
+            Intent intent = new Intent(this, NotificationActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.feedback) {
+            Intent intent = new Intent(this, FeedbackActivity.class);
+            startActivityForResult(intent, 1);
+        } else if (id == R.id.exit) {
+            this.finishAffinity();
+        } else if (id == R.id.about) {
+            Intent intent = new Intent(this, AboutMessageScheduler.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -327,4 +351,35 @@ public class MainActivity extends AppCompatActivity
 
         startActivity(intent);
     }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "undelivered";
+            String description = "Contains undelivered messages";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("1", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public void setMenuCounter(int count) {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        TextView view = (TextView) navigationView.getMenu().findItem(R.id.notificationId).getActionView();
+        view.setText(count > 0 ? String.valueOf(count) : null);
+    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        SentMessageBroadcast smsSentReceiver = new SentMessageBroadcast();
+//        DeliveredMessageBroadcast smsDeliveredReceiver = new DeliveredMessageBroadcast();
+//        unregisterReceiver(smsSentReceiver);
+//        unregisterReceiver(smsDeliveredReceiver);
+//    }
 }

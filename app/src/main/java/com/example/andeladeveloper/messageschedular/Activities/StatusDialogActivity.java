@@ -38,7 +38,7 @@ public class StatusDialogActivity extends AppCompatActivity {
 
         id = intent.getIntExtra("id", 0);
         position = intent.getIntExtra("position", 0);
-        Log.d("IDPOSITION", Integer.toString(id) + " " + Integer.toString(position));
+
         List<PhoneNumberDetails> phoneNumberDetails = db.getPhoneNumberDetails(id, position);
 
         for (int i = 0; i < phoneNumberDetails.size(); i++) {

@@ -65,6 +65,8 @@ public class AllScheduledMessagesAsyncTask extends AsyncTask<String, Void, List<
             textView.setVisibility(View.GONE);
         }
         recyclerView.setAdapter(new ScheduleMessageAdapter(result));
+        Log.d("SCROOLTO", Integer.toString(mainActivity.scrollState));
+        recyclerView.scrollTo(0, 60);
     }
 
     /**

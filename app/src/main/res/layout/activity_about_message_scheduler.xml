@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.andeladeveloper.messageschedular.Activities.AboutMessageScheduler">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/userImageId"
+                android:layout_width="70dp"
+                android:layout_height="100dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignTop="@+id/messageTitle"
+                android:layout_marginLeft="10dp"
+                android:src="@mipmap/messaeg_schedular_round"
+                android:background="@drawable/circle"
+                />
+            <TextView
+                android:id="@+id/messageScheduler"
+                android:layout_width="270dp"
+                android:textSize="30sp"
+                android:layout_height="100dp"
+                android:textStyle="bold"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="30dp"
+                android:text="Message Scheduler"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Version 1.0"
+            android:textStyle="bold"
+            android:layout_marginTop="-50dp"
+            android:layout_marginLeft="110dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="16dp"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="Message Scheduler is a messaging application that enables users to schedule a message to be sent in a later time."
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="16dp"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="With message scheduler you will be able to schedule a one time message or re-occurring messages, weather daily, weekly, monthly or yearly to up to 100 people."
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="16dp"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text="Note: If you are using Infinix always try to launch the app after booting, so as to enable pending messages to be sent when due. Scheduled messages that falls within the period when your phone is off will not be sent. So always make sure that your phone is on during the periods when your scheduled messages would be sent."
+            />
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:textSize="16sp"
+            android:text="Email: messagescheduler123@gmail.com"
+            />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,14 +1,16 @@
 package com.example.andeladeveloper.messageschedular;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.telephony.SmsManager;
-import android.widget.Toast;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
+import com.example.andeladeveloper.messageschedular.asynctasks.SendSmsAsyncTask;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
+import com.example.andeladeveloper.messageschedular.database.models.MessageCollections;
 import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
+import com.example.andeladeveloper.messageschedular.services.MyService;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -19,18 +21,15 @@ import java.util.List;
  */
 
 public class ScheduleMessage extends BroadcastReceiver {
-
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        Toast toast = Toast.makeText(context, "I am just testing oooo", Toast.LENGTH_SHORT);
-        toast.show();
         DatabaseHelper db = new DatabaseHelper(context);
 
         List<ScheduledMessage> allMessages = db.getAllScheduledMessages("DESC");
 
         Calendar currentTime = Calendar.getInstance();
         Calendar scheduledTime = Calendar.getInstance();
+        int isSeen = 0;
 
         for (int i = 0; i < allMessages.size(); i++) {
 
@@ -41,29 +40,45 @@ public class ScheduleMessage extends BroadcastReceiver {
             if(((int)Math.floor(scheduledTime.getTimeInMillis()/60000)) == ((int)Math.floor(currentTime.getTimeInMillis()/ 60000))
                     && message.getRemainingOccurrence() >= 0) {
 
+                SharedPreferences  sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                String queueMessage =sharedPref.getString("queueMessage", "");
+                isSeen +=1;
+
+                context.startService(new Intent(context, MyService.class));
+
                 if (message.getStatus() == 1 && message.getOccurrence() == 0) {
                     db.updateMessageStatus(3, allMessages.get(i).getId());
                 } else if (message.getStatus() == 1 && message.getOccurrence() > 0){
                     db.updateCollection(message.getOccurrence() - message.getRemainingOccurrence(), message.getId(), 3);
-
                 } else {
-                    sendSms(message.getMessage(), message.getPhoneNumber().split(","), message.getOccurrence() - message.getRemainingOccurrence(),
-                            message.getId(), message.getPhoneName().split(","), context);
-
-                    if (message.getRemainingOccurrence() > 0) {
-                        String nextScheduledDate = getNextScheduledDate(message.getDuration(), message.getInterval(), message.getTime());
-                        db.updateMessageTime(nextScheduledDate, message.getId());
-                        db.updateCollection(message.getOccurrence() - message.getRemainingOccurrence(), message.getId(), 2);
-                        db.updateRemainingOccurrence(message.getRemainingOccurrence() - 1, message.getId());
-
-                    } else if (message.getRemainingOccurrence() == 0 && message.getOccurrence() > 0) {
-                        db.updateCollection(message.getOccurrence() - message.getRemainingOccurrence(), message.getId(), 2);
-                        db.updateRemainingOccurrence(message.getRemainingOccurrence() - 1, message.getId());
+                    if (message.getOccurrence() == 0) {
+                        if (isSeen == 1 && queueMessage.equals("")) {
+                            new SendSmsAsyncTask(message.getMessage(), message.getPhoneNumber().split(","), message.getOccurrence() - message.getRemainingOccurrence(),
+                                    message.getId(), message.getPhoneName().split(","), context).execute(-1, 0);
+                        } else {
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            if (queueMessage.equals("")) {
+                                editor.putString("queueMessage", queueMessage  + message.getId());
+                            } else {
+                                editor.putString("queueMessage", queueMessage + "," + message.getId());
+                            }
+                            editor.apply();
+                        }
                     } else {
-                        db.updateMessageStatus(2, message.getId());
-                        db.updateRemainingOccurrence(message.getRemainingOccurrence() - 1, message.getId());
+                        MessageCollections messageCollections = db.getMessageCollection(message.getId(), message.getOccurrence() - message.getRemainingOccurrence());
+                        if (isSeen == 1) {
+                            new SendSmsAsyncTask(messageCollections.getMessage(), message.getPhoneNumber().split(","), message.getOccurrence() - message.getRemainingOccurrence(),
+                                    message.getId(), message.getPhoneName().split(","), context).execute(messageCollections.getId(), 0);
+                        } else {
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            if (queueMessage.equals("")) {
+                                editor.putString("queueMessage", queueMessage + "?" + messageCollections.getId());
+                            } else {
+                                editor.putString("queueMessage", queueMessage + ",?" + messageCollections.getId());
+                            }
+                            editor.apply();
+                        }
                     }
-
                 }
             }
         }
@@ -284,44 +299,5 @@ public class ScheduleMessage extends BroadcastReceiver {
             isSorted = hasBeenSorted == 0 ? true : false;
         }
         return weekDaysInNum;
-    }
-
-
-    /**
-     * Sends a sms for a give message in a collection to a person(number) or a group of people(numbers).
-     *
-     * @param message the message to be sent the recipent
-     * @param phoneNumber the phone number of the recipent.
-     * @param position the position in which the message is in the collection.
-     * @param collectionId the collection id
-     * @param phoneName the name of the phone number owner.
-     * @param context context
-     *
-     * @return void
-     */
-    private void sendSms(String message, String[] phoneNumber, Integer position, Integer collectionId, String[] phoneName, Context context) {
-
-            SmsManager smgr = SmsManager.getDefault();
-
-            Intent intentDelivered, intentSent;
-            intentDelivered = new Intent("SMS_DELIVERED");
-            intentSent = new Intent("SMS_SENT");
-
-
-            intentSent.putExtra("position", position);
-            intentSent.putExtra("phoneNumbers", phoneNumber);
-            intentSent.putExtra("collectionId", collectionId);
-            intentSent.putExtra("names", phoneName);
-            intentSent.putExtra("numSent", 0);
-            intentSent.putExtra("message", message);
-
-            intentDelivered.putExtra("position", position);
-            intentDelivered.putExtra("collectionId", collectionId);
-            intentDelivered.putExtra("phoneNumber", phoneNumber[0]);
-
-            PendingIntent piSent=PendingIntent.getBroadcast(context, 0, intentSent, PendingIntent.FLAG_CANCEL_CURRENT);
-            PendingIntent piDelivered= PendingIntent.getBroadcast(context, 0, intentDelivered, PendingIntent.FLAG_CANCEL_CURRENT);
-
-            smgr.sendTextMessage(phoneNumber[0].replaceFirst("0", "234").replaceAll("\\s+",""), null, message, piSent, piDelivered);
     }
 }

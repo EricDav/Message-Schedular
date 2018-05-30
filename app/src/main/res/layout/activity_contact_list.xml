@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.andeladeveloper.messageschedular.ContactListActivity">
+    tools:context="com.example.andeladeveloper.messageschedular.Activities.ContactListActivity">
 
 
 
@@ -18,7 +18,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="144dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:background="#C0C0C0" />
     <TextView
         android:id="@+id/loadingContactsText"
@@ -32,7 +32,7 @@
         android:id="@+id/recycler_contact_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="145dp"
         android:scrollbars="vertical" />

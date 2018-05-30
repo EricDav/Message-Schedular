@@ -22,7 +22,7 @@ public class CollectionAsyncTask extends AsyncTask<Integer, Void, List<PhoneNumb
 
     DatabaseHelper db;
     TextView textView;
-    public CollectionAsyncTask(Context context,  TextView textView) {
+    public CollectionAsyncTask(Context context, TextView textView) {
         db = new DatabaseHelper(context);
         this.textView = textView;
     }
@@ -34,7 +34,6 @@ public class CollectionAsyncTask extends AsyncTask<Integer, Void, List<PhoneNumb
     protected void onPostExecute(List<PhoneNumberDetails> result) {
         Log.d("SIZE", Integer.toString(result.size()));
         if (result.size() == 1) {
-            Log.d("AsyncMagic", result.get(0).getStatus());
             textView.setText(result.get(0).getStatus());
             return;
         }
@@ -64,7 +63,7 @@ public class CollectionAsyncTask extends AsyncTask<Integer, Void, List<PhoneNumb
         } else if (sent == 0) {
             details = failure.toString() + " failed" + " and " + delivered.toString() + " delivered";
         } else if (delivered == 0) {
-            details = failure.toString() + " failed" + " and " + sent.toString() + " delivered";
+            details = failure.toString() + " failed" + " and " + sent.toString() + " sent";
         } else {
             details = failure.toString() + " failed " + sent.toString()  + ", " + sent.toString() + " sent and " + delivered.toString() + " delivered";
         }
@@ -79,6 +78,5 @@ public class CollectionAsyncTask extends AsyncTask<Integer, Void, List<PhoneNumb
         List<PhoneNumberDetails> phoneNumberDetails = db.getPhoneNumberDetails(collectionId, position);
 
         return  phoneNumberDetails;
-
     }
 }

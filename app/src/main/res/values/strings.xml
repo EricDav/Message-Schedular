@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Message Schedular</string>
+    <string name="app_name">Message Scheduler</string>
     <string name="schedule_page_name">Schedule A Message</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>

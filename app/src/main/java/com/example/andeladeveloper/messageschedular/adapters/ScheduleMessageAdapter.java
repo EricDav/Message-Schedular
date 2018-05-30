@@ -119,7 +119,10 @@ public class ScheduleMessageAdapter extends RecyclerView.Adapter<ScheduleMessage
 
         if (currentDate.get(Calendar.YEAR) == year && currentDate.get(Calendar.MONTH) == month && currentDate.get(Calendar.DAY_OF_MONTH) == day) {
             hour = hour + 1;
-            return hour.toString() + ":" + minute.toString();
+            String hr = hour.toString().length() == 1 ? "0" + hour.toString() : hour.toString();
+            String min = minute.toString().length() == 1 ? "0" + minute.toString() : minute.toString();
+
+            return hr + ":" + min;
         } else if (currentDate.get(Calendar.YEAR) == year && currentDate.get(Calendar.MONTH) == month && currentDate.get(Calendar.DAY_OF_MONTH) == day - 1) {
             return "Yesterday";
         } else {

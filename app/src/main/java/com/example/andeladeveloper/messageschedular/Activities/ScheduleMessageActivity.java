@@ -1,13 +1,9 @@
 package com.example.andeladeveloper.messageschedular.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,12 +15,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.andeladeveloper.messageschedular.ContactListActivity;
 import com.example.andeladeveloper.messageschedular.Fragments.DatePickerFragment;
-import com.example.andeladeveloper.messageschedular.Dialog;
 import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.Fragments.TimePickerFragment;
 import com.example.andeladeveloper.messageschedular.database.models.DatabaseHelper;
+import com.example.andeladeveloper.messageschedular.database.models.ScheduledMessage;
 import com.example.andeladeveloper.messageschedular.dialogs.ConfirmationDialogFragment;
 
 import java.util.ArrayList;
@@ -80,7 +75,6 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
             }
         });
 
-
         dateText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,21 +84,19 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
         });
 
         db = new DatabaseHelper(this);
-        // db.createSentMessageTable();
         displaySpinner();
-        Log.d("ON_CREATE", "I GOT HERE WHEN THE STUFF IS CLICKED");
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("INSIDE", "I got inside here bro");
         if (resultCode == RESULT_OK && requestCode == 1) {
             if (data.hasExtra("phoneNumbers")) {
                 phoneNumbers = data.getStringExtra("phoneNumbers");
+                String displayPhoneNumbers = data.getStringExtra("displayPhoneNumbers");
                 phoneNames = data.getStringExtra("phoneNames");
                 phonePhotoUris = data.getStringExtra("phonePhotoUris");
-                phoneNumberText.setText(phoneNumbers);
+                phoneNumberText.setText(displayPhoneNumbers);
             }
         } else if (resultCode == RESULT_OK && requestCode == 2) {
             List<String> list = new ArrayList<String>();
@@ -239,9 +231,12 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
                         db.insertMessage(userValidity.get("message"), phoneNumbers, time, time,
                                 0, 0, "",  0, phoneNames, phonePhotoUris, 0);
 
-
                 if (value > 0) {
                     DialogFragment newFragment = new ConfirmationDialogFragment();
+                    Bundle data = new Bundle();
+                    data.putLong("id", value);
+                    newFragment.setArguments(data);
+                    newFragment.setCancelable(false);
                     newFragment.show(getFragmentManager(), "missiles");
                 } else {
                     displayToast("An unknown error occurred", 1);
@@ -262,5 +257,24 @@ public class ScheduleMessageActivity extends AppCompatActivity implements
             return false;
         }
         return  true;
+    }
+
+    public void moveToSingleScheduleActivity(ScheduledMessage scheduledMessage) {
+
+        Intent intent = new Intent(this, SingleScheduledMessage.class);
+        intent.putExtra("message", scheduledMessage.getMessage());
+        intent.putExtra("names", scheduledMessage.getPhoneName());
+        intent.putExtra("time", scheduledMessage.getStartTime());
+        intent.putExtra("id", scheduledMessage.getId());
+        intent.putExtra("phoneNumbers", scheduledMessage.getPhoneNumber());
+        intent.putExtra("occurrence", scheduledMessage.getOccurrence());
+        intent.putExtra("remainingOccurrences", scheduledMessage.getRemainingOccurrence());
+        intent.putExtra("interval", scheduledMessage.getInterval());
+        intent.putExtra("photoUri", scheduledMessage.getPhonePhotoUri());
+        intent.putExtra("status", scheduledMessage.getStatus());
+        intent.putExtra("createdAt", scheduledMessage.getTimestamp());
+        intent.putExtra("duration", scheduledMessage.getDuration());
+
+        startActivity(intent);
     }
 }

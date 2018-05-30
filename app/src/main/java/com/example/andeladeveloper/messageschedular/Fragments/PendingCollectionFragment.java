@@ -60,7 +60,6 @@ public class PendingCollectionFragment extends Fragment {
 
             @Override
             public void onClick(View view, int position) {
-                Log.d("ON_CLICK", "I am clickinbg ooooo");
                 Intent intent = new Intent(getActivity(), SingleCollectionActivity.class);
                 MessageCollections messageCollection = messageCollections.get(position);
 

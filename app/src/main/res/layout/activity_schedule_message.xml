@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,6 +40,7 @@
                 android:id="@+id/messageId"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
+                android:paddingRight="20dp"
                 android:hint="Message"
                 android:inputType="text|textMultiLine" />
     </android.support.design.widget.TextInputLayout>
@@ -51,7 +52,6 @@
             android:layout_marginRight="190dp"
             android:layout_width="fill_parent"
             >
-
             <EditText
                 android:id="@+id/dateId"
                 android:layout_width="fill_parent"
@@ -105,4 +105,4 @@
     </LinearLayout>
 
 
-</android.support.design.widget.CoordinatorLayout>
+</ScrollView>

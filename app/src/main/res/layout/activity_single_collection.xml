@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -53,6 +53,16 @@
                         android:layout_marginLeft="25dp"
                         android:scaleType="fitEnd"
                         android:src="@drawable/ic_edit_black_24dp" />
+
+                    <ImageView
+                        android:id="@+id/sendImage"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="openConfirmationDialog"
+                        android:layout_marginLeft="25dp"
+                        android:scaleType="fitEnd"
+                        android:src="@drawable/ic_send_black_24dp" />
                 <ImageView
                     android:id="@+id/saveMessage"
                     android:visibility="gone"
@@ -143,10 +153,11 @@
                     android:onClick="closeDialog"
                     android:textAlignment="textEnd"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_red_light" />
+                    android:textColor="@android:color/holo_red_light"
+                    android:gravity="end" />
 
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

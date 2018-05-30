@@ -1,16 +1,12 @@
-package com.example.andeladeveloper.messageschedular;
+package com.example.andeladeveloper.messageschedular.Activities;
 
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,8 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.andeladeveloper.messageschedular.R;
 import com.example.andeladeveloper.messageschedular.dialogs.MaximumContactsDialog;
 
 import java.util.ArrayList;
@@ -144,9 +140,9 @@ public class Dialog extends AppCompatActivity implements
 
     public void setIntervalType(View view) {
         RadioButton intervalButton = (RadioButton)view;
-        intervalType = intervalButton.getText().toString().split(" ")[0];
+        intervalType = intervalButton.getText().toString().split(" ").length == 1 ? "" : "100";
         EditText after = findViewById(R.id.editText2);
-        if (intervalType.equals("Never")) {
+        if (intervalType.equals("100")) {
             after.setText("");
             RadioButton button = findViewById(R.id.afterRadioButtonId);
             button.setChecked(false);
@@ -292,7 +288,6 @@ public class Dialog extends AppCompatActivity implements
         dictionary.put(6, "Friday");
         dictionary.put(7, "Saturday");
 
-
         Integer numOfDaysInMonth;
         if (thirtyDaysMonth.contains(month)) {
             numOfDaysInMonth = 30;
@@ -349,7 +344,11 @@ public class Dialog extends AppCompatActivity implements
     }
 
     public void onSave(View view) {
-        Integer numOfOcc = intervalType == "Never" ? 100 : occurence;
+        if (occurence < 2) {
+            displayDialogMessage("Occurrences can not be more less than 2");
+            return;
+        }
+        Integer numOfOcc = intervalType == "100" ? 100 : occurence;
 
         Intent intent = new Intent();
         intent.putExtra("occurrence", numOfOcc);
@@ -386,7 +385,6 @@ public class Dialog extends AppCompatActivity implements
         } else {
             return "Every " + interval.toString() + " " + pluralType + " " + time +  " " + " " + occurence.toString() + " times";
         }
-
     }
 
     public String getMonthlyTime(String[] monthlyDay) {

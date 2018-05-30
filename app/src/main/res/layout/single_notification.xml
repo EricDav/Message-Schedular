@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="20dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:id="@+id/notificationHeaderId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Missed Message"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="5dp"
+        />
+    <TextView
+        android:id="@+id/missedMessageId"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="16dp"
+        android:maxLines="4"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="false"
+        android:text="I am vjfvbbv vnbmbvnmdbsjh bfnmdbvndbjh"
+        android:layout_width="match_parent"
+        />
+
+    <TextView
+        android:id="@+id/missedTimeId"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="16dp"
+        android:text="March 24th 12pm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+</LinearLayout>

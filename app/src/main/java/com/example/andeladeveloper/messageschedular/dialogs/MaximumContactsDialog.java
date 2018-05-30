@@ -4,11 +4,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import com.example.andeladeveloper.messageschedular.Activities.MainActivity;
 import com.example.andeladeveloper.messageschedular.R;
 
 /**
@@ -21,10 +19,12 @@ public class MaximumContactsDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         String getArgument = getArguments().getString("message");
+        final int feedback = getArguments().getInt("feedback");
+        String text = feedback == 1 ? "Ok" : "Got it!";
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
         getActivity().getWindow().getDecorView().setBackgroundColor(Color.WHITE);
         builder.setMessage(getArgument)
-                .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                .setPositiveButton(text, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                     }
                 })
